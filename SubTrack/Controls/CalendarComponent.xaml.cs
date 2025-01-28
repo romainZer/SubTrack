@@ -49,7 +49,7 @@ namespace SubTrack.Controls
         public CalendarComponent()
         {
             InitializeComponent();
-            BindingContext = new CalendarViewModel(); // Lie la View au ViewModel
+            BindingContext = new CalendarItemViewModel(); // Lie la View au ViewModel
             GenerateCalendar();
         }
         #endregion

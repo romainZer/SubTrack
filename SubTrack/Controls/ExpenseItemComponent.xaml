@@ -1,11 +1,26 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SubTrack.Controls.ExpenseItemComponent">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <FlexLayout Direction="Row" JustifyContent="SpaceBetween">
+        <!-- Texte de l'élément de dépense -->
+        <VerticalStackLayout>
+            <Label Text="{Binding ExpenseTitle}" FontSize="16" FontAttributes="Bold"/>
+            <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="16" />
+            <Label Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" FontSize="16" />
+        </VerticalStackLayout>
+
+        <!-- Image de l'élément de dépense -->
+        <Frame WidthRequest="50">
+            <Frame.CornerRadius>
+                <OnPlatform>
+                    <!--iOS-->
+                    <On Platform="iOS" Value="25" />
+                    <!--Android-->
+                    <On Platform="Android" Value="25" />
+                    <!--UWP-->
+                    <On Platform="UWP" Value="25" />
+                </OnPlatform>
+            </Frame.CornerRadius>
+        </Frame>
+    </FlexLayout>
 </ContentView>
