@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SubTrack.Controls"
+             xmlns:viewModels="clr-namespace:SubTrack.ViewModels"
+             x:Class="SubTrack.Views.CalendarPage">
+
+    <ContentPage.BindingContext>
+        <!-- Définir le BindingContext pour la page -->
+        <viewModels:CalendarViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout>
+        
+        <!-- Utilisation du contrôle CalendarComponent avec des liaisons de données -->
+        <controls:CalendarComponent 
+            CurrentYear="{Binding CurrentYear, Mode=TwoWay}"
+            CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}">
+        </controls:CalendarComponent>
+    </VerticalStackLayout>
+</ContentPage>
