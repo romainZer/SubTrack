@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace SubTrack.ViewModels
 {
+    /// <summary>
+    /// Représente le ViewModel du composant ExpenseItem
+    /// </summary>
     public class ExpenseItemViewModel : INotifyPropertyChanged
     {
         #region Attributes
@@ -83,8 +87,8 @@ namespace SubTrack.ViewModels
         {
             //Appeler la méthode LoadData() dans le but d'initialiser les données depuis la base
             this.ExpenseDate = DateTime.Now;
-            this.ExpenseTitle = "Title";
-            this.ExpenseAmount = 0;
+            this.ExpenseTitle = "Netflix";
+            this.ExpenseAmount = 100;
             this.IsRecurrent = true;
         }
         #endregion

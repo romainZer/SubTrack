@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using SubTrack.ViewModels;
+using System;
 
 namespace SubTrack.Controls
 {
@@ -20,6 +21,12 @@ namespace SubTrack.Controls
         /// </summary>
         public static readonly BindableProperty CurrentMonthProperty =
             BindableProperty.Create(nameof(CurrentMonth), typeof(int), typeof(CalendarComponent), DateTime.Now.Month, propertyChanged: OnDateChanged);
+
+        /// <summary>
+        /// Propriété bindable pour le jour sélectionné.
+        /// </summary>
+        public static readonly BindableProperty SelectedDayProperty =
+            BindableProperty.Create(nameof(SelectedDay), typeof(int?), typeof(CalendarComponent), null, propertyChanged: OnSelectedDayChanged);
         #endregion
 
         #region Properties
@@ -29,7 +36,11 @@ namespace SubTrack.Controls
         public int CurrentYear
         {
             get => (int)GetValue(CurrentYearProperty);
-            set => SetValue(CurrentYearProperty, value);
+            set
+            {
+                SetValue(CurrentYearProperty, value);
+                SelectedDay = null;
+            }
         }
 
         /// <summary>
@@ -38,7 +49,20 @@ namespace SubTrack.Controls
         public int CurrentMonth
         {
             get => (int)GetValue(CurrentMonthProperty);
-            set => SetValue(CurrentMonthProperty, value);
+            set
+            {
+                SetValue(CurrentMonthProperty, value);
+                SelectedDay = null;
+            }
+        }
+
+        /// <summary>
+        /// Obtient ou définit le jour sélectionné.
+        /// </summary>
+        public int? SelectedDay
+        {
+            get => (int?)GetValue(SelectedDayProperty);
+            set => SetValue(SelectedDayProperty, value);
         }
         #endregion
 
@@ -49,18 +73,21 @@ namespace SubTrack.Controls
         public CalendarComponent()
         {
             InitializeComponent();
-            BindingContext = new CalendarItemViewModel(); // Lie la View au ViewModel
+            BindingContext = new CalendarItemViewModel();
             GenerateCalendar();
         }
         #endregion
 
         #region Frames
         /// <summary>
-        /// Génère un cadre pour afficher le nom du jour.
+        /// Génère un cadre pour afficher un jour de la semaine.
         /// </summary>
-        /// <param name="text">Le texte à afficher dans le cadre.</param>
-        /// <returns>Un objet <see cref="Frame"/> contenant le nom du jour.</returns>
-        private Frame GenerateDayFrame(string text)
+        /// <param name="text">Le texte à afficher.</param>
+        /// <param name="textColor">La couleur du texte.</param>
+        /// <param name="backgroundColor">La couleur de fond.</param>
+        /// <param name="cornerRadius">Le rayon des coins.</param>
+        /// <returns>Un objet <see cref="Frame"/>.</returns>
+        private Frame GenerateDayFrame(string text, Color textColor, Color backgroundColor, double cornerRadius)
         {
             return new Frame
             {
@@ -69,19 +96,18 @@ namespace SubTrack.Controls
                     Text = text,
                     HorizontalTextAlignment = TextAlignment.Center,
                     VerticalTextAlignment = TextAlignment.Center,
-                    TextColor = Colors.White,
+                    TextColor = textColor,
                     FontSize = 14,
                     FontAttributes = FontAttributes.Bold,
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Center
                 },
-
                 WidthRequest = 45,
                 HeightRequest = 45,
                 Padding = 10,
-                CornerRadius = 0,
+                CornerRadius = (int)cornerRadius,
                 BorderColor = Colors.Transparent,
-                BackgroundColor = Colors.Transparent,
+                BackgroundColor = backgroundColor,
                 HasShadow = false,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
@@ -89,20 +115,21 @@ namespace SubTrack.Controls
         }
 
         /// <summary>
-        /// Génère un cadre pour afficher le numéro du jour.
+        /// Génère un cadre pour afficher un numéro de jour.
         /// </summary>
-        /// <param name="number">Le numéro du jour à afficher.</param>
-        /// <param name="actualDay">Indique si le jour est le jour actuel.</param>
-        /// <returns>Un objet <see cref="Frame"/> contenant le numéro du jour.</returns>
-        private Frame GenerateDayNumberFrame(int number, bool actualDay = false)
+        /// <param name="dayNumber">Le numéro du jour.</param>
+        /// <param name="actualDay">Indique si c'est le jour actuel.</param>
+        /// <returns>Un objet <see cref="Frame"/>.</returns>
+        private Frame GenerateDayNumberFrame(int dayNumber, bool actualDay = false)
         {
             Color borderColor = actualDay ? Colors.LightGray : Colors.Transparent;
+            Color backgroundColor = dayNumber == SelectedDay ? Colors.Blue : Colors.Transparent;
 
-            return new Frame
+            var frame = new Frame
             {
                 Content = new Label
                 {
-                    Text = number.ToString(),
+                    Text = dayNumber.ToString(),
                     HorizontalTextAlignment = TextAlignment.Center,
                     VerticalTextAlignment = TextAlignment.Center,
                     TextColor = Colors.White,
@@ -111,17 +138,32 @@ namespace SubTrack.Controls
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Center
                 },
-
                 WidthRequest = 45,
                 HeightRequest = 45,
                 Padding = 10,
                 CornerRadius = 50,
                 BorderColor = borderColor,
-                BackgroundColor = Colors.Transparent,
+                BackgroundColor = backgroundColor,
                 HasShadow = false,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
+
+            var tapGestureRecognizer = new TapGestureRecognizer();
+            tapGestureRecognizer.Tapped += (s, e) =>
+            {
+                if (SelectedDay == dayNumber)
+                {
+                    SelectedDay = null;
+                }
+                else
+                {
+                    SelectedDay = dayNumber;
+                }
+            };
+            frame.GestureRecognizers.Add(tapGestureRecognizer);
+
+            return frame;
         }
         #endregion
 
@@ -134,8 +176,24 @@ namespace SubTrack.Controls
         /// <param name="newValue">La nouvelle valeur.</param>
         private static void OnDateChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            var control = (CalendarComponent)bindable;
-            control.GenerateCalendar();
+            if (bindable is CalendarComponent control)
+            {
+                control.GenerateCalendar();
+            }
+        }
+
+        /// <summary>
+        /// Méthode appelée lorsque le jour sélectionné change.
+        /// </summary>
+        /// <param name="bindable">L'objet bindable.</param>
+        /// <param name="oldValue">L'ancienne valeur.</param>
+        /// <param name="newValue">La nouvelle valeur.</param>
+        private static void OnSelectedDayChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is CalendarComponent control)
+            {
+                control.GenerateCalendar();
+            }
         }
 
         /// <summary>
@@ -143,45 +201,39 @@ namespace SubTrack.Controls
         /// </summary>
         private void GenerateCalendar()
         {
-            // Réinitialise la grille existante
             CalendarGrid.Children.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
             CalendarGrid.RowDefinitions.Clear();
 
-            // Ajoute les colonnes (7 jours)
             for (int i = 0; i < 7; i++)
             {
                 CalendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
 
-            // Calcule le nombre de lignes nécessaires
             int rows = GetNumberOfRowsForMonth(CurrentMonth, CurrentYear);
             for (int i = 0; i < rows; i++)
             {
                 CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             }
 
-            // Ajoute les labels des jours (Lun, Mar, etc.) avec dimanche en dernier
             string[] days = { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
             for (int i = 0; i < 7; i++)
             {
-                Frame dayFrame = GenerateDayFrame(days[i]);
+                Frame dayFrame = GenerateDayFrame(days[i], Colors.White, Colors.Transparent, 0);
                 CalendarGrid.Children.Add(dayFrame);
                 Grid.SetColumn(dayFrame, i);
                 Grid.SetRow(dayFrame, 0);
             }
 
-            // Ajoute les numéros des jours
             var firstDayOfMonth = new DateTime(CurrentYear, CurrentMonth, 1);
-            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-            startDayOfWeek = startDayOfWeek == 0 ? 6 : startDayOfWeek - 1; // Dimanche est maintenant dernier
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
 
-            int daysInMonth = GetNumberOfDaysInMonth(CurrentMonth, CurrentYear);
+            int daysInMonth = DateTime.DaysInMonth(CurrentYear, CurrentMonth);
 
             for (int i = 0; i < daysInMonth; i++)
             {
                 bool isActualDay = i + 1 == DateTime.Now.Day && CurrentMonth == DateTime.Now.Month && CurrentYear == DateTime.Now.Year;
-                Frame dayNumberFrame = GenerateDayNumberFrame(i + 1, isActualDay); // Si jour actuel, on entoure
+                Frame dayNumberFrame = GenerateDayNumberFrame(i + 1, isActualDay);
 
                 int row = (i + startDayOfWeek) / 7 + 1;
                 int column = (i + startDayOfWeek) % 7;
@@ -204,7 +256,7 @@ namespace SubTrack.Controls
         }
 
         /// <summary>
-        /// Obtient le nombre de lignes nécessaires pour afficher un mois donné.
+        /// Obtient le nombre de lignes nécessaires pour afficher le mois.
         /// </summary>
         /// <param name="month">Le mois.</param>
         /// <param name="year">L'année.</param>
@@ -213,8 +265,7 @@ namespace SubTrack.Controls
         {
             var daysInMonth = GetNumberOfDaysInMonth(month, year);
             var firstDayOfMonth = new DateTime(year, month, 1);
-            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-            startDayOfWeek = startDayOfWeek == 0 ? 6 : startDayOfWeek - 1;
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
 
             return (int)Math.Ceiling((daysInMonth + startDayOfWeek) / 7.0) + 1;
         }

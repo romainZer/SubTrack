@@ -1,26 +1,56 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:SubTrack.Converters"
              x:Class="SubTrack.Controls.ExpenseItemComponent">
-    <FlexLayout Direction="Row" JustifyContent="SpaceBetween">
-        <!-- Texte de l'élément de dépense -->
-        <VerticalStackLayout>
-            <Label Text="{Binding ExpenseTitle}" FontSize="16" FontAttributes="Bold"/>
-            <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="16" />
-            <Label Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" FontSize="16" />
-        </VerticalStackLayout>
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:ExpenseToTextConverter x:Key="ExpenseToTextConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
 
-        <!-- Image de l'élément de dépense -->
-        <Frame WidthRequest="50">
-            <Frame.CornerRadius>
-                <OnPlatform>
-                    <!--iOS-->
-                    <On Platform="iOS" Value="25" />
-                    <!--Android-->
-                    <On Platform="Android" Value="25" />
-                    <!--UWP-->
-                    <On Platform="UWP" Value="25" />
-                </OnPlatform>
-            </Frame.CornerRadius>
+    <Grid>
+        <!-- Contenu principal -->
+        <Frame Style="{StaticResource ExpenseItemFrameStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Icône arrondie à gauche -->
+                <Frame Grid.Column="0" 
+                       Style="{StaticResource ExpenseIconFrameStyle}">
+                    <Image Source="wallet.png" 
+                           Aspect="AspectFill" 
+                           HeightRequest="30" 
+                           WidthRequest="30" 
+                           VerticalOptions="Center" 
+                           HorizontalOptions="Center"/>
+                </Frame>
+
+                <!-- Motif de la dépense au centre -->
+                <VerticalStackLayout Grid.Column="1" 
+                                     VerticalOptions="Center"
+                                     Spacing="1">
+                    <Label Text="{Binding ExpenseTitle}" 
+                           Style="{StaticResource ExpenseTitleLabelStyle}" />
+                    <HorizontalStackLayout>
+                        <Label Text="Le " 
+                               Style="{StaticResource ExpenseInfosLabelStyle}" />
+                        <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" 
+                               Style="{StaticResource ExpenseInfosLabelStyle}" 
+                               FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
+                           Style="{StaticResource ExpenseInfosLabelStyle}" />
+                </VerticalStackLayout>
+
+                <!-- Montant de la dépense à droite -->
+                <Label Grid.Column="2" 
+                       Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" 
+                       Style="{StaticResource ExpenseAmountLabelStyle}" />
+            </Grid>
         </Frame>
-    </FlexLayout>
+    </Grid>
 </ContentView>

@@ -10,15 +10,29 @@
         <viewModels:CalendarPageViewModel/>
     </ContentPage.BindingContext>
 
-    <VerticalStackLayout Padding="12">
-        
+    <Grid Padding="12" RowDefinitions="Auto, Auto, *">
+
         <!-- Utilisation du contrôle CalendarComponent avec des liaisons de données -->
         <controls:CalendarComponent 
+            Grid.Row="0"
             CurrentYear="{Binding CurrentYear, Mode=TwoWay}"
-            CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}">
+            CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}"
+            BindingContext="{Binding CalendarViewModel}">
         </controls:CalendarComponent>
 
+        <!-- Séparateur -->
+        <BoxView Grid.Row="1" Style="{StaticResource SeparatorStyle}"/>
+
         <!-- Représente l'ensemble des dépenses qui tombent mensuellement pour l'utilisateur -->
-        <controls:ExpenseItemComponent/>
-    </VerticalStackLayout>
+        <CollectionView Grid.Row="2" 
+                        ItemsSource="{Binding Expenses, Mode=TwoWay}" 
+                        VerticalOptions="FillAndExpand">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <controls:ExpenseItemComponent BindingContext="{Binding .}"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
 </ContentPage>
