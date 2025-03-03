@@ -25,8 +25,8 @@
 
         <!-- Représente l'ensemble des dépenses qui tombent mensuellement pour l'utilisateur -->
         <CollectionView Grid.Row="2" 
-                        ItemsSource="{Binding Expenses, Mode=TwoWay}" 
-                        VerticalOptions="FillAndExpand">
+                ItemsSource="{Binding Expenses, Mode=TwoWay}" 
+                VerticalOptions="FillAndExpand">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <controls:ExpenseItemComponent BindingContext="{Binding .}"/>
@@ -34,5 +34,19 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
+        <!-- Bouton en bas à droite de la page -->
+        <Button 
+            Grid.Row="0" Grid.RowSpan="3"
+            Text="+"
+            VerticalOptions="End"
+            HorizontalOptions="End"
+            FontSize="Large"
+            Margin="0,0,20,20"
+            BackgroundColor="#2596be"
+            TextColor="White"
+            WidthRequest="60"
+            HeightRequest="60"
+            CornerRadius="10"
+            Command="{Binding AddExpenseCommand}"/>
     </Grid>
 </ContentPage>

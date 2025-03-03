@@ -1,102 +1,74 @@
 ﻿using SubTrack.Controls;
+using SubTrack.Models;
+using SubTrack.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace SubTrack.ViewModels
 {
+    /// <summary>
+    /// Représente le ViewModel de la page de visualisation des dépenses mensuelles
+    /// </summary>
     public class CalendarPageViewModel : INotifyPropertyChanged
     {
+        #region Commands
+
+        /// <summary>
+        /// Commande lors du clic du bouton d'ajout des dépenses
+        /// </summary>
+        public ICommand AddExpenseCommand { get; }
+
+        #endregion
+
         #region Properties
+
         /// <summary>
         /// Obtient ou définit un CalendarViewModel
         /// </summary>
         public CalendarItemViewModel CalendarViewModel { get; set; }
 
-        public ObservableCollection<ExpenseItemViewModel> RawExpenses { get; set; }
+        /// <summary>
+        /// Obtient ou définit les dépenses mensuelles brutes
+        /// </summary>
+        public ObservableCollection<Expense> RawExpenses { get; set; }
 
         /// <summary>
-        /// Obtient ou définit une liste de tous les ExpenseItemsViewModel
+        /// Obtient ou définit une liste de tous les ExpenseItemsViewModel filtrés selon le mois courant
         /// </summary>
-        public ObservableCollection<ExpenseItemViewModel> Expenses { get; set; }
+        public ObservableCollection<Expense> Expenses { get; set; }
+
         #endregion
 
         #region Constructors 
+
         /// <summary>
         /// Constructeur du ViewModel de la Page CalendarPage
         /// </summary>
         public CalendarPageViewModel()
         {
             this.CalendarViewModel = new CalendarItemViewModel();
-            this.Expenses = new ObservableCollection<ExpenseItemViewModel>();
-            this.RawExpenses = new ObservableCollection<ExpenseItemViewModel>();
+            this.Expenses = new ObservableCollection<Expense>();
+            this.RawExpenses = new ObservableCollection<Expense>();
 
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Netflix",
-                ExpenseAmount = 15.99,
-                ExpenseDate = new DateTime(2025, 1, 12),
-                IsRecurrent = true
-            });
+            // Initialisation de la commande pour ajouter une dépense
+            AddExpenseCommand = new Command(async () => await NavigateToAddExpensePage());
 
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Spotify",
-                ExpenseAmount = 9.99,
-                ExpenseDate = new DateTime(2025, 2, 12),
-                IsRecurrent = true
-            });
+            // Ajout de dépenses factices
+            RawExpenses.Add(new Expense { ExpenseTitle = "Netflix", ExpenseAmount = 15.99, ExpenseDate = new DateTime(2025, 1, 12), IsRecurrent = true });
+            RawExpenses.Add(new Expense { ExpenseTitle = "Spotify", ExpenseAmount = 9.99, ExpenseDate = new DateTime(2025, 2, 12), IsRecurrent = true });
+            RawExpenses.Add(new Expense { ExpenseTitle = "Amazon Prime", ExpenseAmount = 12.99, ExpenseDate = new DateTime(2025, 2, 12), IsRecurrent = false });
+            RawExpenses.Add(new Expense { ExpenseTitle = "EDF", ExpenseAmount = 82.00, ExpenseDate = new DateTime(2025, 2, 12), IsRecurrent = false });
 
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Dealer",
-                ExpenseAmount = 9.99,
-                ExpenseDate = new DateTime(2025, 2, 12),
-                IsRecurrent = true
-            });
-
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Bible.com",
-                ExpenseAmount = 9.99,
-                ExpenseDate = new DateTime(2025, 2, 12),
-                IsRecurrent = true
-            });
-
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Amazon Prime",
-                ExpenseAmount = 12.99,
-                ExpenseDate = new DateTime(2025, 2, 12),
-                IsRecurrent = false
-            });
-
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "EDF",
-                ExpenseAmount = 82.00,
-                ExpenseDate = new DateTime(2025, 2, 12),
-                IsRecurrent = false
-            });
-
-            RawExpenses.Add(new ExpenseItemViewModel
-            {
-                ExpenseTitle = "Test2",
-                ExpenseAmount = 82.00,
-                ExpenseDate = new DateTime(2025, 3, 12),
-                IsRecurrent = true
-            });
-
-            //Abonnement au suivi des mois
+            // Abonnement aux changements de mois
             CalendarViewModel.PropertyChanged += CalendarViewModel_PropertyChanged;
 
-            //Initialiser les dépenses (factices pour le moment)
-            this.LoadExpenses();
+            // Initialisation des dépenses visibles
+            LoadExpenses();
         }
 
         #endregion
@@ -104,27 +76,55 @@ namespace SubTrack.ViewModels
         #region Methods
 
         /// <summary>
-        /// Charge des dépenses factices
+        /// Charge les dépenses du mois sélectionné
         /// </summary>
         private void LoadExpenses()
         {
-            var filteredExpenses = RawExpenses
-                .Where(expense =>
-                    expense.ExpenseDate.Year == CalendarViewModel.CurrentYear &&
-                    expense.ExpenseDate.Month == CalendarViewModel.CurrentMonth)
-                .ToList();
-
+            // Filtrer les dépenses en fonction du mois et de l'année courants
             Expenses.Clear();
-            foreach (var expense in filteredExpenses)
+            foreach (var expense in RawExpenses.Where(e => e.ExpenseDate.Year == CalendarViewModel.CurrentYear &&
+                                                           e.ExpenseDate.Month == CalendarViewModel.CurrentMonth))
             {
                 Expenses.Add(expense);
             }
-
             OnPropertyChanged(nameof(Expenses));
         }
+
         #endregion
 
-        #region Event Handler
+        #region Actions
+
+        /// <summary>
+        /// Navigue vers la page d'ajout de dépense
+        /// </summary>
+        private async Task NavigateToAddExpensePage()
+        {
+            var addExpensePage = new AddMonthlyExpensePage();
+            if (addExpensePage.BindingContext is AddMonthlyExpenseViewModel viewModel)
+            {
+                // S'abonner à l'événement pour ajouter une dépense
+                viewModel.ExpenseAdded += OnExpenseAdded;
+            }
+
+            await Shell.Current.Navigation.PushAsync(addExpensePage);
+        }
+
+        /// <summary>
+        /// Gestion de l'ajout d'une dépense à la liste et mise à jour de l'affichage
+        /// </summary>
+        private void OnExpenseAdded(object? sender, Expense newExpense)
+        {
+            if (newExpense != null)
+            {
+                RawExpenses.Add(newExpense);
+                LoadExpenses();
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
         /// <summary>
         /// Se produit lorsque la valeur d'une propriété change.
         /// </summary>
@@ -139,6 +139,9 @@ namespace SubTrack.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        /// Met à jour les dépenses affichées lorsque l'utilisateur change de mois
+        /// </summary>
         protected void CalendarViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(CalendarViewModel.CurrentMonth))
@@ -146,6 +149,7 @@ namespace SubTrack.ViewModels
                 LoadExpenses();
             }
         }
+
         #endregion
     }
 }

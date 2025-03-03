@@ -10,7 +10,7 @@
             <!-- Bouton "Précédent" lié à la commande du ViewModel -->
             <Button Text="Précédent"
                     Command="{Binding PreviousMonthCommand}"
-                    VerticalOptions="Center" />
+                    VerticalOptions="Center"/>
 
             <!-- Affichage du mois et de l'année -->
             <Label VerticalOptions="Center" FontSize="16">
