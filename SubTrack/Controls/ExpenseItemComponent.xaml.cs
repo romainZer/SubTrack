@@ -1,3 +1,4 @@
+using SubTrack.Models;
 using SubTrack.ViewModels;
 
 namespace SubTrack.Controls;
@@ -8,7 +9,7 @@ public partial class ExpenseItemComponent : ContentView
     public ExpenseItemComponent()
 	{
         InitializeComponent();
-        BindingContext = new ExpenseItemViewModel();
+        BindingContext = new Expense();
 	}
     #endregion
 }

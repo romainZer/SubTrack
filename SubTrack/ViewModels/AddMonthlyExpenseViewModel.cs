@@ -10,6 +10,10 @@ namespace SubTrack.ViewModels
     /// </summary>
     public class AddMonthlyExpenseViewModel
     {
+        #region Navigation
+        private readonly INavigation _navigation;
+        #endregion
+
         #region Events
 
         /// <summary>
@@ -67,8 +71,10 @@ namespace SubTrack.ViewModels
         /// <summary>
         /// Constructeur de la classe AddMonthlyExpenseViewModel.
         /// </summary>
-        public AddMonthlyExpenseViewModel()
+        public AddMonthlyExpenseViewModel(INavigation navigation)
         {
+            _navigation = navigation;
+
             // Initialisation des catégories de dépenses
             Categories = new ObservableCollection<string>
             {
@@ -79,7 +85,7 @@ namespace SubTrack.ViewModels
             SelectedExpenseDate = DateTime.Now;
 
             // Commande pour valider l'ajout d'une dépense
-            ValidateAddExpenseCommand = new Command(ValidateAddExpense);
+            ValidateAddExpenseCommand = new Command(async () => await ValidateAddExpense());
         }
 
         #endregion
@@ -89,7 +95,7 @@ namespace SubTrack.ViewModels
         /// <summary>
         /// Valide et ajoute une nouvelle dépense si les conditions sont remplies.
         /// </summary>
-        private void ValidateAddExpense()
+        private async Task ValidateAddExpense()
         {
             if (string.IsNullOrWhiteSpace(ExpenseTitle) || ExpenseAmount <= 0)
             {
@@ -107,6 +113,8 @@ namespace SubTrack.ViewModels
 
             // Déclenche l'événement ExpenseAdded pour informer le parent de la nouvelle dépense
             ExpenseAdded?.Invoke(this, newExpense);
+
+            await this._navigation.PopAsync();
         }
 
         #endregion

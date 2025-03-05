@@ -5,10 +5,6 @@
              x:Class="SubTrack.Views.AddMonthlyExpensePage"
              Title="Ajouter une dépense mensuelle">
 
-    <ContentPage.BindingContext>
-        <viewModels:AddMonthlyExpenseViewModel />
-    </ContentPage.BindingContext>
-
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="12">
         <VerticalStackLayout Grid.Row="0"  Spacing="10">
             <!-- Titre de la dépense -->
