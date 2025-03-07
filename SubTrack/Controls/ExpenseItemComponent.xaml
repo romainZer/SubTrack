@@ -2,55 +2,64 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:SubTrack.Converters"
              x:Class="SubTrack.Controls.ExpenseItemComponent">
+
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:ExpenseToTextConverter x:Key="ExpenseToTextConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
 
-    <Grid>
-        <!-- Contenu principal -->
-        <Frame Style="{StaticResource ExpenseItemFrameStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="3*" />
-                </Grid.ColumnDefinitions>
+    <SwipeView>
+        <SwipeView.RightItems>
+            <SwipeItems Mode="Reveal">
+                <SwipeItem Text="Supprimer"
+                           BackgroundColor="Red"
+                           IconImageSource="trash.png"
+                           Command="{Binding DeleteCommand}"
+                           CommandParameter="{Binding Id}" />
+            </SwipeItems>
+        </SwipeView.RightItems>
 
-                <!-- Icône arrondie à gauche -->
-                <Frame Grid.Column="0" 
-                       Style="{StaticResource ExpenseIconFrameStyle}">
-                    <Image Source="wallet.png" 
-                           Aspect="AspectFill" 
-                           HeightRequest="30" 
-                           WidthRequest="30" 
-                           VerticalOptions="Center" 
-                           HorizontalOptions="Center"/>
-                </Frame>
+        <Grid>
+            <Frame Style="{StaticResource ExpenseItemFrameStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
 
-                <!-- Motif de la dépense au centre -->
-                <VerticalStackLayout Grid.Column="1" 
-                                     VerticalOptions="Center"
-                                     Spacing="1">
-                    <Label Text="{Binding ExpenseTitle}" 
-                           Style="{StaticResource ExpenseTitleLabelStyle}" />
-                    <HorizontalStackLayout>
-                        <Label Text="Le " 
+                    <Frame Grid.Column="0" 
+                           Style="{StaticResource ExpenseIconFrameStyle}">
+                        <Image Source="wallet.png" 
+                               Aspect="AspectFill" 
+                               HeightRequest="30" 
+                               WidthRequest="30" 
+                               VerticalOptions="Center" 
+                               HorizontalOptions="Center"/>
+                    </Frame>
+
+                    <VerticalStackLayout Grid.Column="1" 
+                                         VerticalOptions="Center"
+                                         Spacing="1">
+                        <Label Text="{Binding ExpenseTitle}" 
+                               Style="{StaticResource ExpenseTitleLabelStyle}" />
+                        <HorizontalStackLayout>
+                            <Label Text="Le " 
+                                   Style="{StaticResource ExpenseInfosLabelStyle}" />
+                            <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" 
+                                   Style="{StaticResource ExpenseInfosLabelStyle}" 
+                                   FontAttributes="Bold" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
                                Style="{StaticResource ExpenseInfosLabelStyle}" />
-                        <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" 
-                               Style="{StaticResource ExpenseInfosLabelStyle}" 
-                               FontAttributes="Bold" />
-                    </HorizontalStackLayout>
-                    <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
-                           Style="{StaticResource ExpenseInfosLabelStyle}" />
-                </VerticalStackLayout>
+                    </VerticalStackLayout>
 
-                <!-- Montant de la dépense à droite -->
-                <Label Grid.Column="2" 
-                       Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" 
-                       Style="{StaticResource ExpenseAmountLabelStyle}" />
-            </Grid>
-        </Frame>
-    </Grid>
+                    <Label Grid.Column="2" 
+                           Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" 
+                           Style="{StaticResource ExpenseAmountLabelStyle}" />
+                </Grid>
+            </Frame>
+        </Grid>
+    </SwipeView>
 </ContentView>

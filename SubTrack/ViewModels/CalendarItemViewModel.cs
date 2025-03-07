@@ -88,11 +88,11 @@ namespace SubTrack.ViewModels
         /// </summary>
         public CalendarItemViewModel()
         {
-            var now = DateTime.Now;
-            CurrentYear = now.Year;
-            CurrentMonth = now.Month;
+            CurrentYear = DateTime.Now.Year;
+            CurrentMonth = DateTime.Now.Month;
+            CurrentMonthName = _months[DateTime.Now.Month - 1];
 
-            // Initialise les commandes
+            // Initialisez éventuellement les commandes du calendrier
             PreviousMonthCommand = new Command(OnPreviousMonth);
             NextMonthCommand = new Command(OnNextMonth);
         }

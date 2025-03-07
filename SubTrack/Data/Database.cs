@@ -65,9 +65,19 @@ namespace SubTrack.Data
         {
             using (var connection = CreateConnection())
             {
-                return (await connection.QueryAsync<Expense>("SELECT * FROM Expenses")).AsList();
+                var query = @"
+                SELECT 
+                    Id,
+                    Title AS ExpenseTitle,
+                    Amount AS ExpenseAmount,
+                    Date AS ExpenseDate,
+                    Category AS ExpenseCategory,
+                    IsRecurrent
+                FROM Expenses";
+                return (await connection.QueryAsync<Expense>(query)).AsList();
             }
         }
+
 
         /// <summary>
         /// Insère en base de données la dépense
@@ -80,7 +90,7 @@ namespace SubTrack.Data
             {
                 await connection.ExecuteAsync(@"
                     INSERT INTO Expenses(Title, Amount, Date, Category, IsRecurrent)
-                    VALUES (@Title, @Amount, @Date, @Category, @IsRecurrent)", e);
+                    VALUES (@ExpenseTitle, @ExpenseAmount, @ExpenseDate, @ExpenseCategory, @IsRecurrent)", e);
             }
         }
 
