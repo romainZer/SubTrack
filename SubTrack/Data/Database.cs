@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace SubTrack.Data
 {
-    public class ExpenseDatabase
+    public class Database
     {
         #region Attributes
-        private static readonly Lazy<ExpenseDatabase> _instance = new(() => new ExpenseDatabase());
+        private static readonly Lazy<Database> _instance = new(() => new Database());
         private readonly string _dbPath;
         #endregion
 
@@ -21,11 +21,11 @@ namespace SubTrack.Data
         /// <summary>
         /// Instance de la base de données
         /// </summary>
-        public static ExpenseDatabase Instance => _instance.Value;
+        public static Database Instance => _instance.Value;
         #endregion
 
         #region Constructors
-        private ExpenseDatabase()
+        private Database()
         {
             _dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "expenses.db");
             InitializeDatabase();
