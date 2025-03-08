@@ -9,57 +9,45 @@
         </ResourceDictionary>
     </ContentView.Resources>
 
-    <SwipeView>
-        <SwipeView.RightItems>
-            <SwipeItems Mode="Reveal">
-                <SwipeItem Text="Supprimer"
-                           BackgroundColor="Red"
-                           IconImageSource="trash.png"
-                           Command="{Binding DeleteCommand}"
-                           CommandParameter="{Binding Id}" />
-            </SwipeItems>
-        </SwipeView.RightItems>
+    <Grid>
+        <Frame Style="{StaticResource ExpenseItemFrameStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
 
-        <Grid>
-            <Frame Style="{StaticResource ExpenseItemFrameStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="5*" />
-                        <ColumnDefinition Width="3*" />
-                    </Grid.ColumnDefinitions>
+                <Frame Grid.Column="0"
+                       Style="{StaticResource ExpenseIconFrameStyle}">
+                    <Image Source="wallet.png"
+                           Aspect="AspectFill"
+                           HeightRequest="30"
+                           WidthRequest="30"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+                </Frame>
 
-                    <Frame Grid.Column="0" 
-                           Style="{StaticResource ExpenseIconFrameStyle}">
-                        <Image Source="wallet.png" 
-                               Aspect="AspectFill" 
-                               HeightRequest="30" 
-                               WidthRequest="30" 
-                               VerticalOptions="Center" 
-                               HorizontalOptions="Center"/>
-                    </Frame>
-
-                    <VerticalStackLayout Grid.Column="1" 
-                                         VerticalOptions="Center"
-                                         Spacing="1">
-                        <Label Text="{Binding ExpenseTitle}" 
-                               Style="{StaticResource ExpenseTitleLabelStyle}" />
-                        <HorizontalStackLayout>
-                            <Label Text="Le " 
-                                   Style="{StaticResource ExpenseInfosLabelStyle}" />
-                            <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}" 
-                                   Style="{StaticResource ExpenseInfosLabelStyle}" 
-                                   FontAttributes="Bold" />
-                        </HorizontalStackLayout>
-                        <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
+                <VerticalStackLayout Grid.Column="1"
+                                     VerticalOptions="Center"
+                                     Spacing="1">
+                    <Label Text="{Binding ExpenseTitle}"
+                           Style="{StaticResource ExpenseTitleLabelStyle}" />
+                    <HorizontalStackLayout>
+                        <Label Text="Le "
                                Style="{StaticResource ExpenseInfosLabelStyle}" />
-                    </VerticalStackLayout>
+                        <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}"
+                               Style="{StaticResource ExpenseInfosLabelStyle}"
+                               FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
+                           Style="{StaticResource ExpenseInfosLabelStyle}" />
+                </VerticalStackLayout>
 
-                    <Label Grid.Column="2" 
-                           Text="{Binding ExpenseAmount, StringFormat='{0:C}'}" 
-                           Style="{StaticResource ExpenseAmountLabelStyle}" />
-                </Grid>
-            </Frame>
-        </Grid>
-    </SwipeView>
+                <Label Grid.Column="2"
+                       Text="{Binding ExpenseAmount, StringFormat='{0:C}'}"
+                       Style="{StaticResource ExpenseAmountLabelStyle}" />
+            </Grid>
+        </Frame>
+    </Grid>
 </ContentView>

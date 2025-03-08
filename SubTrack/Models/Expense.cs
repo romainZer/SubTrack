@@ -14,6 +14,7 @@ namespace SubTrack.Models
     public class Expense : INotifyPropertyChanged
     {
         #region Attributes
+        private int _expenseId;
         private string? _expenseTitle;
         private DateTime _expenseDate;
         private double _expenseAmount;
@@ -22,6 +23,22 @@ namespace SubTrack.Models
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Définit l'id de la dépense
+        /// </summary>
+        public int ExpenseId
+        {
+            get => this._expenseId;
+            set
+            {
+                if (this._expenseId != value)
+                {
+                    this._expenseId = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Définit le titre (libellé) de la dépense

@@ -67,7 +67,7 @@ namespace SubTrack.Data
             {
                 var query = @"
                 SELECT 
-                    Id,
+                    Id AS ExpenseId,
                     Title AS ExpenseTitle,
                     Amount AS ExpenseAmount,
                     Date AS ExpenseDate,
@@ -103,7 +103,7 @@ namespace SubTrack.Data
         {
             using (var connection = CreateConnection())
             {
-                await connection.ExecuteAsync(@"DELETE FROM Expenses WHERE Id = @Id ", id);
+                await connection.ExecuteAsync(@"DELETE FROM Expenses WHERE Id = @Id", new { Id = id });
             }
         }
         #endregion

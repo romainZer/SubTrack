@@ -24,6 +24,10 @@ namespace SubTrack.ViewModels
         /// </summary>
         public ICommand AddExpenseCommand { get; }
 
+        /// <summary>
+        /// Commande lors du swipe d'un ExpenseItem vers la gauche
+        /// </summary>
+        public ICommand DeleteExpenseCommand { get;  }
         #endregion
 
         #region Properties
@@ -52,6 +56,7 @@ namespace SubTrack.ViewModels
 
             // Initialisation de la commande pour ajouter une dépense
             AddExpenseCommand = new Command(async () => await NavigateToAddExpensePage());
+            DeleteExpenseCommand = new Command<int>(async (id) => await DeleteExpense(id));
 
             // Abonnement aux changements de mois
             CalendarViewModel.PropertyChanged += CalendarViewModel_PropertyChanged;
@@ -83,6 +88,17 @@ namespace SubTrack.ViewModels
             OnPropertyChanged(nameof(Expenses));
         }
 
+
+        private async Task DeleteExpense(int id)
+        {
+            var expenseToDelete = Expenses.FirstOrDefault(e => e.ExpenseId == id);
+            if (expenseToDelete != null)
+            {
+                Expenses.Remove(expenseToDelete);
+                await Database.Instance.DeleteExpenseByIdAsync(id);
+                OnPropertyChanged(nameof(Expenses));
+            }
+        }
         #endregion
 
         #region Actions

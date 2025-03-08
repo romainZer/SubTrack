@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentPage x:Name="calendarPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:SubTrack.Controls"
              xmlns:viewModels="clr-namespace:SubTrack.ViewModels"
@@ -11,9 +12,8 @@
     </ContentPage.BindingContext>
 
     <Grid Padding="12" RowDefinitions="Auto, Auto, *">
-
         <!-- Utilisation du contrôle CalendarComponent avec des liaisons de données -->
-        <controls:CalendarComponent 
+        <controls:CalendarComponent
             Grid.Row="0"
             CurrentYear="{Binding CurrentYear, Mode=TwoWay}"
             CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}"
@@ -24,20 +24,31 @@
         <BoxView Grid.Row="1" Style="{StaticResource SeparatorStyle}"/>
 
         <!-- Représente l'ensemble des dépenses qui tombent mensuellement pour l'utilisateur -->
-        <CollectionView Grid.Row="2" 
-                ItemsSource="{Binding Expenses, Mode=TwoWay}" 
-                VerticalOptions="FillAndExpand">
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Expenses, Mode=TwoWay}"
+                        VerticalOptions="FillAndExpand">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <controls:ExpenseItemComponent BindingContext="{Binding .}"/>
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem Text="Supprimer"
+                                   BackgroundColor="Red"
+                                   IconImageSource="trash.png"
+                                   Command="{Binding Source={x:Reference calendarPage}, Path=BindingContext.DeleteExpenseCommand}"
+                                   CommandParameter="{Binding ExpenseId}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <controls:ExpenseItemComponent BindingContext="{Binding .}"/>
+                    </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <!-- Bouton en bas à droite de la page -->
-        <Button 
+        <Button
             Grid.Row="0" Grid.RowSpan="3"
-            Text="+"
+            Text="+" 
             VerticalOptions="End"
             HorizontalOptions="End"
             FontSize="Large"
@@ -50,3 +61,6 @@
             Command="{Binding AddExpenseCommand}"/>
     </Grid>
 </ContentPage>
+
+
+
