@@ -36,11 +36,7 @@ namespace SubTrack.Controls
         public int CurrentYear
         {
             get => (int)GetValue(CurrentYearProperty);
-            set
-            {
-                SetValue(CurrentYearProperty, value);
-                SelectedDay = null;
-            }
+            set => SetValue(CurrentYearProperty, value);
         }
 
         /// <summary>
@@ -49,11 +45,7 @@ namespace SubTrack.Controls
         public int CurrentMonth
         {
             get => (int)GetValue(CurrentMonthProperty);
-            set
-            {
-                SetValue(CurrentMonthProperty, value);
-                SelectedDay = null;
-            }
+            set => SetValue(CurrentMonthProperty, value);
         }
 
         /// <summary>
@@ -75,95 +67,6 @@ namespace SubTrack.Controls
             InitializeComponent();
             BindingContext = new CalendarItemViewModel();
             GenerateCalendar();
-        }
-        #endregion
-
-        #region Frames
-        /// <summary>
-        /// Génère un cadre pour afficher un jour de la semaine.
-        /// </summary>
-        /// <param name="text">Le texte à afficher.</param>
-        /// <param name="textColor">La couleur du texte.</param>
-        /// <param name="backgroundColor">La couleur de fond.</param>
-        /// <param name="cornerRadius">Le rayon des coins.</param>
-        /// <returns>Un objet <see cref="Frame"/>.</returns>
-        private Frame GenerateDayFrame(string text, Color textColor, Color backgroundColor, double cornerRadius)
-        {
-            return new Frame
-            {
-                Content = new Label
-                {
-                    Text = text,
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center,
-                    TextColor = textColor,
-                    FontSize = 14,
-                    FontAttributes = FontAttributes.Bold,
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Center
-                },
-                WidthRequest = 45,
-                HeightRequest = 45,
-                Padding = 10,
-                CornerRadius = (int)cornerRadius,
-                BorderColor = Colors.Transparent,
-                BackgroundColor = backgroundColor,
-                HasShadow = false,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
-        }
-
-        /// <summary>
-        /// Génère un cadre pour afficher un numéro de jour.
-        /// </summary>
-        /// <param name="dayNumber">Le numéro du jour.</param>
-        /// <param name="actualDay">Indique si c'est le jour actuel.</param>
-        /// <returns>Un objet <see cref="Frame"/>.</returns>
-        private Frame GenerateDayNumberFrame(int dayNumber, bool actualDay = false)
-        {
-            Color borderColor = actualDay ? Colors.LightGray : Colors.Transparent;
-            Color backgroundColor = dayNumber == SelectedDay ? Colors.Blue : Colors.Transparent;
-
-            var frame = new Frame
-            {
-                Content = new Label
-                {
-                    Text = dayNumber.ToString(),
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center,
-                    TextColor = Colors.White,
-                    FontSize = 16,
-                    FontAttributes = FontAttributes.Bold,
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Center
-                },
-                WidthRequest = 45,
-                HeightRequest = 45,
-                Padding = 10,
-                CornerRadius = 50,
-                BorderColor = borderColor,
-                BackgroundColor = backgroundColor,
-                HasShadow = false,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
-
-            var tapGestureRecognizer = new TapGestureRecognizer();
-            tapGestureRecognizer.Tapped += (s, e) =>
-            {
-                if (SelectedDay == dayNumber)
-                {
-                    SelectedDay = null;
-                }
-                else
-                {
-                    SelectedDay = dayNumber;
-                }
-            };
-            frame.GestureRecognizers.Add(tapGestureRecognizer);
-
-            return frame;
         }
         #endregion
 
@@ -205,65 +108,71 @@ namespace SubTrack.Controls
             CalendarGrid.ColumnDefinitions.Clear();
             CalendarGrid.RowDefinitions.Clear();
 
+            // Ajouter 7 colonnes pour les jours de la semaine
             for (int i = 0; i < 7; i++)
             {
                 CalendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
 
+            // Ajouter les lignes nécessaires
             int rows = GetNumberOfRowsForMonth(CurrentMonth, CurrentYear);
             for (int i = 0; i < rows; i++)
             {
                 CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             }
 
+            // En-têtes des jours de la semaine
             string[] days = { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
             for (int i = 0; i < 7; i++)
             {
-                Frame dayFrame = GenerateDayFrame(days[i], Colors.White, Colors.Transparent, 0);
-                CalendarGrid.Children.Add(dayFrame);
-                Grid.SetColumn(dayFrame, i);
-                Grid.SetRow(dayFrame, 0);
+                var dayLabel = new Label
+                {
+                    Text = days[i],
+                    FontSize = 14,
+                    TextColor = Application.Current?.RequestedTheme == AppTheme.Dark ? Colors.White : Color.FromArgb("#666666"),
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                CalendarGrid.Children.Add(dayLabel);
+                Grid.SetColumn(dayLabel, i);
+                Grid.SetRow(dayLabel, 0);
             }
 
+            // Remplir les jours du mois
             var firstDayOfMonth = new DateTime(CurrentYear, CurrentMonth, 1);
             var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
-
             int daysInMonth = DateTime.DaysInMonth(CurrentYear, CurrentMonth);
 
             for (int i = 0; i < daysInMonth; i++)
             {
                 bool isActualDay = i + 1 == DateTime.Now.Day && CurrentMonth == DateTime.Now.Month && CurrentYear == DateTime.Now.Year;
-                Frame dayNumberFrame = GenerateDayNumberFrame(i + 1, isActualDay);
+                var dayButton = new Button
+                {
+                    Text = (i + 1).ToString(),
+                    FontSize = 14,
+                    BackgroundColor = i + 1 == SelectedDay ? Color.FromArgb("#2596be") : Colors.Transparent,
+                    TextColor = i + 1 == SelectedDay ? Colors.White : (Application.Current.RequestedTheme == AppTheme.Dark ? Colors.White : Color.FromArgb("#333333")), // Texte blanc en mode sombre
+                    CornerRadius = 20,
+                    Padding = 0,
+                    WidthRequest = 35,
+                    HeightRequest = 35
+                };
+
+                int dayNumber = i + 1;
+                dayButton.Clicked += (s, e) => SelectedDay = SelectedDay == dayNumber ? null : dayNumber;
 
                 int row = (i + startDayOfWeek) / 7 + 1;
                 int column = (i + startDayOfWeek) % 7;
 
-                CalendarGrid.Children.Add(dayNumberFrame);
-                Grid.SetColumn(dayNumberFrame, column);
-                Grid.SetRow(dayNumberFrame, row);
+                CalendarGrid.Children.Add(dayButton);
+                Grid.SetColumn(dayButton, column);
+                Grid.SetRow(dayButton, row);
             }
         }
 
-        /// <summary>
-        /// Obtient le nombre de jours dans un mois donné.
-        /// </summary>
-        /// <param name="month">Le mois.</param>
-        /// <param name="year">L'année.</param>
-        /// <returns>Le nombre de jours dans le mois.</returns>
-        private int GetNumberOfDaysInMonth(int month, int year)
-        {
-            return DateTime.DaysInMonth(year, month);
-        }
-
-        /// <summary>
-        /// Obtient le nombre de lignes nécessaires pour afficher le mois.
-        /// </summary>
-        /// <param name="month">Le mois.</param>
-        /// <param name="year">L'année.</param>
-        /// <returns>Le nombre de lignes nécessaires.</returns>
         private int GetNumberOfRowsForMonth(int month, int year)
         {
-            var daysInMonth = GetNumberOfDaysInMonth(month, year);
+            var daysInMonth = DateTime.DaysInMonth(year, month);
             var firstDayOfMonth = new DateTime(year, month, 1);
             var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
 

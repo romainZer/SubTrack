@@ -26,7 +26,7 @@
         <!-- Représente l'ensemble des dépenses qui tombent mensuellement pour l'utilisateur -->
         <CollectionView Grid.Row="2"
                         ItemsSource="{Binding Expenses, Mode=TwoWay}"
-                        VerticalOptions="FillAndExpand">
+                        VerticalOptions="Fill">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <SwipeView>
