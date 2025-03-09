@@ -38,30 +38,30 @@ namespace SubTrack.Data
             using (var connection = CreateConnection())
             {
                 connection.Execute(@"
-                CREATE TABLE IF NOT EXISTS Expenses (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Title TEXT NOT NULL,
-                    Amount REAL NOT NULL,
-                    Date TEXT NOT NULL,
-                    Category TEXT,
-                    IsRecurrent INTEGER NOT NULL
-                );
+                    CREATE TABLE IF NOT EXISTS FinancialOperations (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Title TEXT NOT NULL,
+                        Amount REAL NOT NULL,
+                        Date TEXT NOT NULL,
+                        Category TEXT,
+                        IsRecurrent INTEGER NOT NULL
+                    );
 
-                CREATE TABLE IF NOT EXISTS MonthlyBudgets (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Month INTEGER NOT NULL,  
-                    Year INTEGER NOT NULL,
-                    Budget REAL NOT NULL
-                );
+                    CREATE TABLE IF NOT EXISTS MonthlyBudgets (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Month INTEGER NOT NULL,  
+                        Year INTEGER NOT NULL,
+                        Budget REAL NOT NULL
+                    );
 
 
-                CREATE TABLE IF NOT EXISTS MonthlyIncomes (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Title TEXT NOT NULL,
-                    Amount REAL NOT NULL,
-                    Month INTEGER NOT NULL,
-                    Year INTEGER NOT NULL
-                );");
+                    CREATE TABLE IF NOT EXISTS MonthlyIncomes (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Title TEXT NOT NULL,
+                        Amount REAL NOT NULL,
+                        Month INTEGER NOT NULL,
+                        Year INTEGER NOT NULL
+                    );");
             }
             ;
         }
@@ -73,54 +73,54 @@ namespace SubTrack.Data
 
         #endregion
 
-        #region Expenses
+        #region FinancialOperations
         /// <summary>
-        /// Récupère l'ensemble des dépenses
+        /// Récupère l'ensemble des opérations financières
         /// </summary>
-        /// <returns>La liste contenant toutes les dépenses</returns>
-        public async Task<List<FinancialOperation>> GetAllExpensesAsync()
+        /// <returns>La liste contenant toutes les opérations financières</returns>
+        public async Task<List<FinancialOperation>> GetAllFinancialOperationsAsync()
         {
             using (var connection = CreateConnection())
             {
                 var query = @"
-                SELECT 
-                    Id AS ExpenseId,
-                    Title AS ExpenseTitle,
-                    Amount AS ExpenseAmount,
-                    Date AS ExpenseDate,
-                    Category AS ExpenseCategory,
-                    IsRecurrent
-                FROM Expenses";
+                    SELECT 
+                        Id AS OperationId,
+                        Title AS OperationTitle,
+                        Amount AS OperationAmount,
+                        Date AS OperationDate,
+                        Category AS OperationCategory,
+                        IsRecurrent
+                    FROM FinancialOperations";
                 return (await connection.QueryAsync<FinancialOperation>(query)).AsList();
             }
         }
 
 
         /// <summary>
-        /// Insère en base de données la dépense
+        /// Insère en base de données l'opération financière
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
-        public async Task AddExpenseAsync(FinancialOperation e)
+        public async Task AddFinancialOperationAsync(FinancialOperation e)
         {
             using (var connection = CreateConnection())
             {
                 await connection.ExecuteAsync(@"
-                    INSERT INTO Expenses(Title, Amount, Date, Category, IsRecurrent)
-                    VALUES (@ExpenseTitle, @ExpenseAmount, @ExpenseDate, @ExpenseCategory, @IsRecurrent)", e);
+                        INSERT INTO FinancialOperations(Title, Amount, Date, Category, IsRecurrent)
+                        VALUES (@OperationTitle, @OperationAmount, @OperationDate, @OperationCategory, @IsRecurrent)", e);
             }
         }
 
         /// <summary>
-        /// Supprime
+        /// Supprime l'opération financière
         /// </summary>
-        /// <param name="id">Id de la dépense</param>
+        /// <param name="id">Id de l'opération financière</param>
         /// <returns></returns>
-        public async Task DeleteExpenseByIdAsync(int id)
+        public async Task DeleteFinancialOperationByIdAsync(int id)
         {
             using (var connection = CreateConnection())
             {
-                await connection.ExecuteAsync(@"DELETE FROM Expenses WHERE Id = @Id", new { Id = id });
+                await connection.ExecuteAsync(@"DELETE FROM FinancialOperations WHERE Id = @Id", new { Id = id });
             }
         }
         #endregion
@@ -132,9 +132,9 @@ namespace SubTrack.Data
             using (var connection = CreateConnection())
             {
                 await connection.ExecuteAsync(@"
-                    INSERT INTO MonthlyBudgets (Month, Year, Budget) 
-                    VALUES (@Month, @Year, @Budget)
-                    ON CONFLICT(Month, Year) DO UPDATE SET Budget = @Budget;",
+                        INSERT INTO MonthlyBudgets (Month, Year, Budget) 
+                        VALUES (@Month, @Year, @Budget)
+                        ON CONFLICT(Month, Year) DO UPDATE SET Budget = @Budget;",
                     new { Month = month, Year = year, Budget = budget });
             }
         }
@@ -144,7 +144,7 @@ namespace SubTrack.Data
             using (var connection = CreateConnection())
             {
                 return await connection.ExecuteScalarAsync<double?>(@"
-                    SELECT Budget FROM MonthlyBudgets WHERE Month = @Month AND Year = @Year",
+                        SELECT Budget FROM MonthlyBudgets WHERE Month = @Month AND Year = @Year",
                     new { Month = month, Year = year });
             }
         }
@@ -159,8 +159,8 @@ namespace SubTrack.Data
             using (var connection = CreateConnection())
             {
                 await connection.ExecuteAsync(@"
-                    INSERT INTO MonthlyIncomes (Title, Amount, Month, Year) 
-                    VALUES (@Title, @Amount, @Month, @Year);",
+                        INSERT INTO MonthlyIncomes (Title, Amount, Month, Year) 
+                        VALUES (@Title, @Amount, @Month, @Year);",
                     new { Title = title, Amount = amount, Month = month, Year = year });
             }
         }
@@ -170,8 +170,8 @@ namespace SubTrack.Data
             using (var connection = CreateConnection())
             {
                 return await connection.ExecuteScalarAsync<double>(@"
-                    SELECT COALESCE(SUM(Amount), 0) FROM MonthlyIncomes 
-                    WHERE Month = @Month AND Year = @Year;",
+                        SELECT COALESCE(SUM(Amount), 0) FROM MonthlyIncomes 
+                        WHERE Month = @Month AND Year = @Year;",
                     new { Month = month, Year = year });
             }
         }

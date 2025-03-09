@@ -3,10 +3,10 @@ using SubTrack.ViewModels;
 
 namespace SubTrack.Controls;
 
-public partial class ExpenseItemComponent : ContentView
+public partial class OperationItemComponent : ContentView
 {
     #region Constructors
-    public ExpenseItemComponent()
+    public OperationItemComponent()
 	{
         InitializeComponent();
         BindingContext = new FinancialOperation();

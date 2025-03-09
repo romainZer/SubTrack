@@ -13,7 +13,7 @@ using System.Windows.Input;
 namespace SubTrack.ViewModels
 {
     /// <summary>
-    /// Représente le ViewModel de la page de visualisation des dépenses mensuelles
+    /// Représente le ViewModel de la page de visualisation des opérations financières mensuelles
     /// </summary>
     public class CalendarPageViewModel : INotifyPropertyChanged
     {
@@ -24,14 +24,14 @@ namespace SubTrack.ViewModels
         #region Commands
 
         /// <summary>
-        /// Commande lors du clic du bouton d'ajout des dépenses
+        /// Commande lors du clic du bouton d'ajout d'opération
         /// </summary>
-        public ICommand AddExpenseCommand { get; }
+        public ICommand AddOperationCommand { get; }
 
         /// <summary>
-        /// Commande lors du swipe d'un ExpenseItem vers la gauche
+        /// Commande lors du swipe d'un OperationItem vers la gauche pour supprimer une opération
         /// </summary>
-        public ICommand DeleteExpenseCommand { get; }
+        public ICommand DeleteOperationCommand { get; }
         #endregion
 
         #region Properties
@@ -42,9 +42,9 @@ namespace SubTrack.ViewModels
         public CalendarItemViewModel CalendarViewModel { get; set; }
 
         /// <summary>
-        /// Obtient ou définit une liste de tous les ExpenseItemsViewModel filtrés selon le mois courant
+        /// Obtient ou définit une liste de toutes les opérations financières filtrées selon le mois courant
         /// </summary>
-        public ObservableCollection<FinancialOperation> Expenses { get; set; }
+        public ObservableCollection<FinancialOperation> Operations { get; set; }
 
         /// <summary>
         /// Obtient ou définit la balance actuelle sur le compte en banque
@@ -74,17 +74,17 @@ namespace SubTrack.ViewModels
             this.CurrentBalance = 10000;
 
             this.CalendarViewModel = new CalendarItemViewModel();
-            this.Expenses = new ObservableCollection<FinancialOperation>();
+            this.Operations = new ObservableCollection<FinancialOperation>();
 
-            // Initialisation de la commande pour ajouter une dépense
-            AddExpenseCommand = new Command(async () => await NavigateToAddExpensePage());
-            DeleteExpenseCommand = new Command<int>(async (id) => await DeleteExpense(id));
+            // Initialisation de la commande pour ajouter une opération financière
+            AddOperationCommand = new Command(async () => await NavigateToAddOperationPage());
+            DeleteOperationCommand = new Command<int>(async (id) => await DeleteOperation(id));
 
             // Abonnement aux changements de mois
             CalendarViewModel.PropertyChanged += CalendarViewModel_PropertyChanged;
 
-            // Initialisation des dépenses visibles
-            _ = LoadExpenses();
+            // Initialisation des opérations visibles
+            _ = LoadOperations();
         }
 
         #endregion
@@ -92,23 +92,23 @@ namespace SubTrack.ViewModels
         #region Methods
 
         /// <summary>
-        /// Charge les dépenses du mois sélectionné
+        /// Charge les opérations du mois sélectionné
         /// </summary>
-        private async Task LoadExpenses()
+        private async Task LoadOperations()
         {
-            // Filtrer les dépenses en fonction du mois et de l'année courants
-            Expenses.Clear();
-            var expenses = await Database.Instance.GetAllExpensesAsync();
-            foreach (var expense in expenses)
+            // Filtrer les opérations en fonction du mois et de l'année courants
+            Operations.Clear();
+            var operations = await Database.Instance.GetAllFinancialOperationsAsync();
+            foreach (var operation in operations)
             {
-                if (expense.OperationDate.Month == CalendarViewModel.CurrentMonth &&
-                    expense.OperationDate.Year == CalendarViewModel.CurrentYear)
+                if (operation.OperationDate.Month == CalendarViewModel.CurrentMonth &&
+                    operation.OperationDate.Year == CalendarViewModel.CurrentYear)
                 {
-                    Expenses.Add(expense);
+                    Operations.Add(operation);
                 }
             }
             await UpdateCurrentBalance();
-            OnPropertyChanged(nameof(Expenses));
+            OnPropertyChanged(nameof(Operations));
         }
 
         /// <summary>
@@ -116,26 +116,26 @@ namespace SubTrack.ViewModels
         /// </summary>
         private async Task UpdateCurrentBalance()
         {
-            double budget = await Database.Instance.GetMonthlyBudgetAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear) ?? 0; //Budget
-            double totalIncome = await Database.Instance.GetTotalMonthlyIncomeAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear); //Revenus
-            double totalExpense = Expenses.Sum(expense => expense.OperationAmount); //Dépenses
+            double budget = await Database.Instance.GetMonthlyBudgetAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear) ?? 0; // Budget
+            double totalIncome = await Database.Instance.GetTotalMonthlyIncomeAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear); // Revenus
+            double totalExpense = Operations.Sum(operation => operation.OperationAmount); // Dépenses
             this.CurrentBalance = budget + totalIncome - totalExpense;
         }
 
         /// <summary>
-        /// Supprime une dépense par son id
+        /// Supprime une opération par son id
         /// </summary>
-        /// <param name="id">L'id de la dépense</param>
+        /// <param name="id">L'id de l'opération</param>
         /// <returns>Une Task</returns>
-        private async Task DeleteExpense(int id)
+        private async Task DeleteOperation(int id)
         {
-            var expenseToDelete = Expenses.FirstOrDefault(e => e.OperationId == id);
-            if (expenseToDelete != null)
+            var operationToDelete = Operations.FirstOrDefault(e => e.OperationId == id);
+            if (operationToDelete != null)
             {
-                Expenses.Remove(expenseToDelete);
-                await Database.Instance.DeleteExpenseByIdAsync(id);
+                Operations.Remove(operationToDelete);
+                await Database.Instance.DeleteFinancialOperationByIdAsync(id);
                 await UpdateCurrentBalance();
-                OnPropertyChanged(nameof(Expenses));
+                OnPropertyChanged(nameof(Operations));
             }
         }
         #endregion
@@ -143,37 +143,37 @@ namespace SubTrack.ViewModels
         #region Actions
 
         /// <summary>
-        /// Navigue vers la page d'ajout de dépense
+        /// Navigue vers la page d'ajout d'opération financière
         /// </summary>
-        private async Task NavigateToAddExpensePage()
+        private async Task NavigateToAddOperationPage()
         {
-            var addExpensePage = new AddFinancialOperationPage();
-            if (addExpensePage.BindingContext is AddFinancialOperationViewModel viewModel)
+            var addOperationPage = new AddFinancialOperationPage();
+            if (addOperationPage.BindingContext is AddFinancialOperationViewModel viewModel)
             {
                 viewModel.OperationAdded += OnOperationAdded;
             }
 
-            await Shell.Current.Navigation.PushAsync(addExpensePage);
+            await Shell.Current.Navigation.PushAsync(addOperationPage);
         }
 
         /// <summary>
         /// Gestion de l'ajout d'une opération financière à la liste et mise à jour de l'affichage
         /// </summary>
-        private async void OnOperationAdded(object? sender, FinancialOperation newExpense)
+        private async void OnOperationAdded(object? sender, FinancialOperation newOperation)
         {
-            if (newExpense != null)
+            if (newOperation != null)
             {
                 // Vérifiez que toutes les propriétés de l'objet FinancialOperation sont définies
-                if (string.IsNullOrEmpty(newExpense.OperationTitle) ||
-                    newExpense.OperationAmount <= 0 ||
-                    newExpense.OperationDate == default ||
-                    string.IsNullOrEmpty(newExpense.OperationCategory))
+                if (string.IsNullOrEmpty(newOperation.OperationTitle) ||
+                    newOperation.OperationAmount <= 0 ||
+                    newOperation.OperationDate == default ||
+                    string.IsNullOrEmpty(newOperation.OperationCategory))
                 {
                     throw new InvalidOperationException("Tous les champs de l'opération financière doivent être remplis.");
                 }
 
-                await Database.Instance.AddExpenseAsync(newExpense);
-                await LoadExpenses();
+                await Database.Instance.AddFinancialOperationAsync(newOperation);
+                await LoadOperations();
             }
         }
 
@@ -196,14 +196,14 @@ namespace SubTrack.ViewModels
         }
 
         /// <summary>
-        /// Met à jour les dépenses affichées lorsque l'utilisateur change de mois
+        /// Met à jour les opérations affichées lorsque l'utilisateur change de mois
         /// </summary>
         protected async void CalendarViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(CalendarViewModel.CurrentMonth) ||
                 e.PropertyName == nameof(CalendarViewModel.CurrentYear))
             {
-                await LoadExpenses();
+                await LoadOperations();
             }
         }
         #endregion

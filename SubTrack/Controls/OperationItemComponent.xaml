@@ -1,7 +1,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:SubTrack.Converters"
-             x:Class="SubTrack.Controls.ExpenseItemComponent">
+             x:Class="SubTrack.Controls.OperationItemComponent">
 
     <ContentView.Resources>
         <ResourceDictionary>
@@ -10,7 +10,7 @@
     </ContentView.Resources>
 
     <Grid>
-        <Frame Style="{StaticResource ExpenseItemFrameStyle}">
+        <Frame Style="{StaticResource OperationItemFrameStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />
@@ -19,7 +19,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Frame Grid.Column="0"
-                       Style="{StaticResource ExpenseIconFrameStyle}">
+                       Style="{StaticResource OperationIconFrameStyle}">
                     <Image Source="wallet.png"
                            Aspect="AspectFill"
                            HeightRequest="30"
@@ -31,22 +31,22 @@
                 <VerticalStackLayout Grid.Column="1"
                                      VerticalOptions="Center"
                                      Spacing="1">
-                    <Label Text="{Binding ExpenseTitle}"
-                           Style="{StaticResource ExpenseTitleLabelStyle}" />
+                    <Label Text="{Binding OperationTitle}"
+                           Style="{StaticResource OperationTitleLabelStyle}" />
                     <HorizontalStackLayout>
                         <Label Text="Le "
-                               Style="{StaticResource ExpenseInfosLabelStyle}" />
-                        <Label Text="{Binding ExpenseDate, StringFormat='{0:dd/MM/yyyy}'}"
-                               Style="{StaticResource ExpenseInfosLabelStyle}"
+                               Style="{StaticResource OperationInfosLabelStyle}" />
+                        <Label Text="{Binding OperationDate, StringFormat='{0:dd/MM/yyyy}'}"
+                               Style="{StaticResource OperationInfosLabelStyle}"
                                FontAttributes="Bold" />
                     </HorizontalStackLayout>
                     <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
-                           Style="{StaticResource ExpenseInfosLabelStyle}" />
+                           Style="{StaticResource OperationInfosLabelStyle}" />
                 </VerticalStackLayout>
 
                 <Label Grid.Column="2"
-                       Text="{Binding ExpenseAmount, StringFormat='{0:C}'}"
-                       Style="{StaticResource ExpenseAmountLabelStyle}" />
+                       Text="{Binding OperationAmount, StringFormat='{0:C}'}"
+                       Style="{StaticResource OperationAmountLabelStyle}" />
             </Grid>
         </Frame>
     </Grid>

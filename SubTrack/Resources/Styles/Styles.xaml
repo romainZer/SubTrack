@@ -427,7 +427,7 @@
     <!-- Styles personnels -->
 
     <!-- Style pour le Frame principal -->
-    <Style x:Key="ExpenseItemFrameStyle" TargetType="Frame">
+    <Style x:Key="OperationItemFrameStyle" TargetType="Frame">
         <Setter Property="CornerRadius" Value="10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Gray950}" />
         <Setter Property="Padding" Value="10" />
@@ -436,7 +436,7 @@
     </Style>
 
     <!-- Style pour l'icône arrondie -->
-    <Style x:Key="ExpenseIconFrameStyle" TargetType="Frame">
+    <Style x:Key="OperationIconFrameStyle" TargetType="Frame">
         <Setter Property="CornerRadius" Value="100" />
         <Setter Property="BackgroundColor" Value="LightGray" />
         <Setter Property="Padding" Value="10" />
@@ -447,7 +447,7 @@
     </Style>
 
     <!-- Style pour le titre de la dépense -->
-    <Style x:Key="ExpenseTitleLabelStyle" TargetType="Label">
+    <Style x:Key="OperationTitleLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="WhiteSmoke" />
@@ -455,13 +455,13 @@
     </Style>
 
     <!-- Style pour la date de la dépense -->
-    <Style x:Key="ExpenseInfosLabelStyle" TargetType="Label">
+    <Style x:Key="OperationInfosLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="Gray" />
     </Style>
 
     <!-- Style pour le montant de la dépense -->
-    <Style x:Key="ExpenseAmountLabelStyle" TargetType="Label">
+    <Style x:Key="OperationAmountLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="White" />
