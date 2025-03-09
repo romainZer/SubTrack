@@ -52,15 +52,6 @@ namespace SubTrack.Data
                         Month INTEGER NOT NULL,  
                         Year INTEGER NOT NULL,
                         Budget REAL NOT NULL
-                    );
-
-
-                    CREATE TABLE IF NOT EXISTS MonthlyIncomes (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Title TEXT NOT NULL,
-                        Amount REAL NOT NULL,
-                        Month INTEGER NOT NULL,
-                        Year INTEGER NOT NULL
                     );");
             }
             ;
@@ -73,7 +64,7 @@ namespace SubTrack.Data
 
         #endregion
 
-        #region FinancialOperations
+        #region Financial Operations
         /// <summary>
         /// Récupère l'ensemble des opérations financières
         /// </summary>
@@ -149,32 +140,6 @@ namespace SubTrack.Data
             }
         }
 
-
-        #endregion
-
-        #region Incomes
-
-        public async Task AddIncomeAsync(string title, double amount, int month, int year)
-        {
-            using (var connection = CreateConnection())
-            {
-                await connection.ExecuteAsync(@"
-                        INSERT INTO MonthlyIncomes (Title, Amount, Month, Year) 
-                        VALUES (@Title, @Amount, @Month, @Year);",
-                    new { Title = title, Amount = amount, Month = month, Year = year });
-            }
-        }
-
-        public async Task<double> GetTotalMonthlyIncomeAsync(int month, int year)
-        {
-            using (var connection = CreateConnection())
-            {
-                return await connection.ExecuteScalarAsync<double>(@"
-                        SELECT COALESCE(SUM(Amount), 0) FROM MonthlyIncomes 
-                        WHERE Month = @Month AND Year = @Year;",
-                    new { Month = month, Year = year });
-            }
-        }
 
         #endregion
     }

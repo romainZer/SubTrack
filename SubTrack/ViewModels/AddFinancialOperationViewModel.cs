@@ -35,6 +35,28 @@ namespace SubTrack.ViewModels
         #region Bindable Properties 
 
         /// <summary>
+        /// Types d'opérations financières (ajout, retrait)
+        /// </summary>
+        public ObservableCollection<string> OperationTypes { get; set; }
+
+        private string? _selectedOperationType;
+        /// <summary>
+        /// Opération financière sélectionnée
+        /// </summary>
+        public string? SelectedOperationType
+        {
+            get => _selectedOperationType;
+            set
+            {
+                if (_selectedOperationType != value)
+                {
+                    _selectedOperationType = value;
+                    UpdateCategories();
+                }
+            }
+        }
+
+        /// <summary>
         /// Titre de l'opération financière.
         /// </summary>
         public string? OperationTitle { get; set; }
@@ -52,7 +74,7 @@ namespace SubTrack.ViewModels
         /// <summary>
         /// Catégorie de l'opération financière.
         /// </summary>
-        public string? OperationCategory { get; set; }
+        public string? SelectedOperationCategory { get; set; }
 
         /// <summary>
         /// Récurrence de l'opération financière.
@@ -75,11 +97,17 @@ namespace SubTrack.ViewModels
         {
             _navigation = navigation;
 
-            // Initialisation des catégories d'opérations financières
-            Categories = new ObservableCollection<string>
+            // Initialisation des types d'opérations
+            OperationTypes = new ObservableCollection<string>
                 {
-                    "Alimentation", "Transport", "Logement", "Divertissement", "Autre"
+                    "Ajout", "Retrait"
                 };
+
+            // Initialisation de la collection des catégories.
+            Categories = new ObservableCollection<string>();
+
+            // Affectation d'une valeur par défaut pour le SelectedOperationType.
+            SelectedOperationType = "Retrait"; // Par défaut retrait (modifiable)
 
             // Initialisation de la date sélectionnée pour éviter une valeur par défaut incorrecte
             SelectedOperationDate = DateTime.Now;
@@ -93,7 +121,32 @@ namespace SubTrack.ViewModels
         #region Methods
 
         /// <summary>
+        /// Met à jour la collection des catégories en fonction du type d'opération sélectionné.
+        /// </summary>
+        private void UpdateCategories()
+        {
+            Categories.Clear();
+            if (SelectedOperationType == "Ajout")
+            {
+                // Liste pour les ajouts d'argent.
+                Categories.Add("Salaires");
+                Categories.Add("Allocations sociales");
+                // Vous pouvez ajouter d'autres catégories spécifiques aux ajouts d'argent ici.
+            }
+            else if (SelectedOperationType == "Retrait")
+            {
+                // Liste pour les retraits.
+                Categories.Add("Alimentation");
+                Categories.Add("Transport");
+                Categories.Add("Logement");
+                Categories.Add("Divertissement");
+                Categories.Add("Autre");
+            }
+        }
+
+        /// <summary>
         /// Valide et ajoute une nouvelle opération financière si les conditions sont remplies.
+        /// Gère correctement l'opération d'ajout et de retrait.
         /// </summary>
         private async Task ValidateAddOperation()
         {
@@ -102,12 +155,14 @@ namespace SubTrack.ViewModels
                 return; // Évite d'ajouter une opération financière invalide
             }
 
+            double finalAmount = (SelectedOperationType == "Retrait") ? -OperationAmount : OperationAmount;
+
             var newOperation = new FinancialOperation
             {
                 OperationTitle = this.OperationTitle,
-                OperationAmount = this.OperationAmount,
+                OperationAmount = finalAmount,
                 OperationDate = this.SelectedOperationDate,
-                OperationCategory = this.OperationCategory,
+                OperationCategory = this.SelectedOperationCategory,
                 IsRecurrent = this.IsOperationRecurrent
             };
 

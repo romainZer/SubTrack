@@ -6,11 +6,12 @@
              Title="Ajouter une opération">
 
     <!-- Liaison ViewModel en code-behind -->
-    
+
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="12">
         <VerticalStackLayout Grid.Row="0"  Spacing="10">
             <StackLayout>
                 <Label Text="Type d'opération" />
+                <Picker ItemsSource="{Binding OperationTypes}" SelectedItem="{Binding SelectedOperationType}" Title="Sélectionner un type" />
             </StackLayout>
 
             <!-- Titre de l'opération -->
@@ -34,7 +35,7 @@
             <!-- Catégorie de l'opération -->
             <StackLayout>
                 <Label Text="Catégorie" />
-                <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding OperationCategory}" Title="Sélectionner une catégorie" />
+                <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedOperationCategory}" Title="Sélectionner une catégorie" />
             </StackLayout>
 
             <!-- Est récurrent ou non -->

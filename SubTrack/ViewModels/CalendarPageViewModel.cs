@@ -71,8 +71,6 @@ namespace SubTrack.ViewModels
         /// </summary>
         public CalendarPageViewModel()
         {
-            this.CurrentBalance = 10000;
-
             this.CalendarViewModel = new CalendarItemViewModel();
             this.Operations = new ObservableCollection<FinancialOperation>();
 
@@ -117,9 +115,9 @@ namespace SubTrack.ViewModels
         private async Task UpdateCurrentBalance()
         {
             double budget = await Database.Instance.GetMonthlyBudgetAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear) ?? 0; // Budget
-            double totalIncome = await Database.Instance.GetTotalMonthlyIncomeAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear); // Revenus
-            double totalExpense = Operations.Sum(operation => operation.OperationAmount); // Dépenses
-            this.CurrentBalance = budget + totalIncome - totalExpense;
+            double totalIncome = Operations.Where(operation => operation.OperationAmount >= 0).Sum(operation => operation.OperationAmount); // Revenus
+            double totalExpense = Operations.Where(operation => operation.OperationAmount < 0).Sum(operation => operation.OperationAmount); // Dépenses
+            this.CurrentBalance = budget + totalIncome + totalExpense;
         }
 
         /// <summary>
@@ -165,7 +163,6 @@ namespace SubTrack.ViewModels
             {
                 // Vérifiez que toutes les propriétés de l'objet FinancialOperation sont définies
                 if (string.IsNullOrEmpty(newOperation.OperationTitle) ||
-                    newOperation.OperationAmount <= 0 ||
                     newOperation.OperationDate == default ||
                     string.IsNullOrEmpty(newOperation.OperationCategory))
                 {
