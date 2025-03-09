@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:SubTrack.ViewModels"
+             x:Class="SubTrack.Views.AddFinancialOperationPage"
+             Title="Ajouter une opération">
+
+    <!-- Liaison ViewModel en code-behind -->
+    
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="12">
+        <VerticalStackLayout Grid.Row="0"  Spacing="10">
+            <StackLayout>
+                <Label Text="Type d'opération" />
+            </StackLayout>
+
+            <!-- Titre de l'opération -->
+            <StackLayout>
+                <Label Text="Titre" />
+                <Entry Placeholder="Entrez un titre" Keyboard="Chat" Text="{Binding OperationTitle}" />
+            </StackLayout>
+
+            <!-- Date de l'opération -->
+            <StackLayout>
+                <Label Text="Date de l'opération" />
+                <DatePicker Date="{Binding SelectedOperationDate}" />
+            </StackLayout>
+
+            <!-- Montant de l'opération -->
+            <StackLayout>
+                <Label Text="Montant" />
+                <Entry Keyboard="Numeric" Placeholder="0.00" Text="{Binding OperationAmount, StringFormat='{}{0:F2}'}" />
+            </StackLayout>
+
+            <!-- Catégorie de l'opération -->
+            <StackLayout>
+                <Label Text="Catégorie" />
+                <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding OperationCategory}" Title="Sélectionner une catégorie" />
+            </StackLayout>
+
+            <!-- Est récurrent ou non -->
+            <StackLayout Orientation="Horizontal" Spacing="10">
+                <CheckBox IsChecked="{Binding IsOperationRecurrent}" />
+                <Label Text="Est récurrent" VerticalOptions="Center" />
+            </StackLayout>
+        </VerticalStackLayout>
+
+        <!-- Bouton pour soumettre le formulaire -->
+        <Button Grid.Row="5" Text="Ajouter l'opération" Command="{Binding ValidateAddOperationCommand}" HeightRequest="50" VerticalOptions="End" Margin="0,0,0,10"/>
+    </Grid>
+</ContentPage>

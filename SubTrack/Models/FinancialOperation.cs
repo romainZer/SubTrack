@@ -9,103 +9,103 @@ using System.Threading.Tasks;
 namespace SubTrack.Models
 {
     /// <summary>
-    /// Représente une dépense
+    /// Représente une opération financière
     /// </summary>
-    public class Expense : INotifyPropertyChanged
+    public class FinancialOperation : INotifyPropertyChanged
     {
         #region Attributes
-        private int _expenseId;
-        private string? _expenseTitle;
-        private DateTime _expenseDate;
-        private double _expenseAmount;
-        private string? _expenseCategory;
+        private int _operationId;
+        private string? _operationTitle;
+        private DateTime _operationDate;
+        private double _operationAmount;
+        private string? _operationCategory;
         private bool _isRecurrent;
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Définit l'id de la dépense
+        /// Définit l'id de l'opération
         /// </summary>
-        public int ExpenseId
+        public int OperationId
         {
-            get => this._expenseId;
+            get => this._operationId;
             set
             {
-                if (this._expenseId != value)
+                if (this._operationId != value)
                 {
-                    this._expenseId = value;
+                    this._operationId = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Définit le titre (libellé) de la dépense
+        /// Définit le titre (libellé) de l'opération
         /// </summary>
-        public string? ExpenseTitle
+        public string? OperationTitle
         {
-            get => this._expenseTitle;
+            get => this._operationTitle;
             set
             {
-                if (this._expenseTitle != value)
+                if (this._operationTitle != value)
                 {
-                    this._expenseTitle = value;
+                    this._operationTitle = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Définit la date sélectionnée par l'utilisateur (l'utilisateur ajoute une dépense à une date donnée)
+        /// Définit la date sélectionnée par l'utilisateur (l'utilisateur ajoute une opération à une date donnée)
         /// </summary>
-        public DateTime ExpenseDate
+        public DateTime OperationDate
         {
-            get => this._expenseDate;
+            get => this._operationDate;
             set
             {
-                if (this._expenseDate != value)
+                if (this._operationDate != value)
                 {
-                    this._expenseDate = value;
+                    this._operationDate = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Définit le montant de la dépense mensuelle
+        /// Définit le montant de l'opération
         /// </summary>
-        public double ExpenseAmount
+        public double OperationAmount
         {
-            get => this._expenseAmount;
+            get => this._operationAmount;
             set
             {
-                if (this._expenseAmount != value)
+                if (this._operationAmount != value)
                 {
-                    this._expenseAmount = value;
+                    this._operationAmount = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Définit la catégorie d'une dépense mensuelle (catégories personnalisables)
+        /// Définit la catégorie d'une opération (catégories personnalisables)
         /// </summary>
-        public string? ExpenseCategory
+        public string? OperationCategory
         {
-            get => this._expenseCategory;
+            get => this._operationCategory;
             set
             {
-                if (this._expenseCategory != value)
+                if (this._operationCategory != value)
                 {
-                    this._expenseCategory = value;
+                    this._operationCategory = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Définit si un paiement est récurrent ou non
+        /// Définit si une opération est récurrente ou non
         /// </summary>
         public bool IsRecurrent
         {
@@ -125,25 +125,26 @@ namespace SubTrack.Models
         #region Constructors
 
         /// <summary>
-        /// Constructeur de la classe Expense
+        /// Constructeur de la classe FinancialOperation
         /// </summary>
+        /// <param name="title"></param>
         /// <param name="date"></param>
         /// <param name="amount"></param>
         /// <param name="category"></param>
         /// <param name="isRecurrent"></param>
-        public Expense(string? title, DateTime date, double amount, string? category, bool isRecurrent = false)
+        public FinancialOperation(string? title, DateTime date, double amount, string? category, bool isRecurrent = false)
         {
-            this.ExpenseTitle = title;
-            this.ExpenseDate = date;
-            this.ExpenseAmount = amount;
-            this.ExpenseCategory = category;
+            this.OperationTitle = title;
+            this.OperationDate = date;
+            this.OperationAmount = amount;
+            this.OperationCategory = category;
             this.IsRecurrent = isRecurrent;
         }
 
         /// <summary>
-        /// Constructeur de la classe Expense (sans arguments -> Construction de la classe en utilisant les Propriétés dynamiques)
+        /// Constructeur de la classe FinancialOperation (sans arguments -> Construction de la classe en utilisant les Propriétés dynamiques)
         /// </summary>
-        public Expense() { }
+        public FinancialOperation() { }
 
         #endregion
 

@@ -45,8 +45,25 @@ namespace SubTrack.Data
                     Date TEXT NOT NULL,
                     Category TEXT,
                     IsRecurrent INTEGER NOT NULL
-                )");
-            };
+                );
+
+                CREATE TABLE IF NOT EXISTS MonthlyBudgets (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Month INTEGER NOT NULL,  
+                    Year INTEGER NOT NULL,
+                    Budget REAL NOT NULL
+                );
+
+
+                CREATE TABLE IF NOT EXISTS MonthlyIncomes (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Title TEXT NOT NULL,
+                    Amount REAL NOT NULL,
+                    Month INTEGER NOT NULL,
+                    Year INTEGER NOT NULL
+                );");
+            }
+            ;
         }
 
         private IDbConnection CreateConnection()
@@ -56,12 +73,12 @@ namespace SubTrack.Data
 
         #endregion
 
-        #region CRUD
+        #region Expenses
         /// <summary>
         /// Récupère l'ensemble des dépenses
         /// </summary>
         /// <returns>La liste contenant toutes les dépenses</returns>
-        public async Task<List<Expense>> GetAllExpensesAsync()
+        public async Task<List<FinancialOperation>> GetAllExpensesAsync()
         {
             using (var connection = CreateConnection())
             {
@@ -74,7 +91,7 @@ namespace SubTrack.Data
                     Category AS ExpenseCategory,
                     IsRecurrent
                 FROM Expenses";
-                return (await connection.QueryAsync<Expense>(query)).AsList();
+                return (await connection.QueryAsync<FinancialOperation>(query)).AsList();
             }
         }
 
@@ -84,7 +101,7 @@ namespace SubTrack.Data
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
-        public async Task AddExpenseAsync(Expense e)
+        public async Task AddExpenseAsync(FinancialOperation e)
         {
             using (var connection = CreateConnection())
             {
@@ -106,6 +123,59 @@ namespace SubTrack.Data
                 await connection.ExecuteAsync(@"DELETE FROM Expenses WHERE Id = @Id", new { Id = id });
             }
         }
+        #endregion
+
+        #region Budgets
+
+        public async Task SetMonthlyBudgetAsync(int month, int year, double budget)
+        {
+            using (var connection = CreateConnection())
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO MonthlyBudgets (Month, Year, Budget) 
+                    VALUES (@Month, @Year, @Budget)
+                    ON CONFLICT(Month, Year) DO UPDATE SET Budget = @Budget;",
+                    new { Month = month, Year = year, Budget = budget });
+            }
+        }
+
+        public async Task<double?> GetMonthlyBudgetAsync(int month, int year)
+        {
+            using (var connection = CreateConnection())
+            {
+                return await connection.ExecuteScalarAsync<double?>(@"
+                    SELECT Budget FROM MonthlyBudgets WHERE Month = @Month AND Year = @Year",
+                    new { Month = month, Year = year });
+            }
+        }
+
+
+        #endregion
+
+        #region Incomes
+
+        public async Task AddIncomeAsync(string title, double amount, int month, int year)
+        {
+            using (var connection = CreateConnection())
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO MonthlyIncomes (Title, Amount, Month, Year) 
+                    VALUES (@Title, @Amount, @Month, @Year);",
+                    new { Title = title, Amount = amount, Month = month, Year = year });
+            }
+        }
+
+        public async Task<double> GetTotalMonthlyIncomeAsync(int month, int year)
+        {
+            using (var connection = CreateConnection())
+            {
+                return await connection.ExecuteScalarAsync<double>(@"
+                    SELECT COALESCE(SUM(Amount), 0) FROM MonthlyIncomes 
+                    WHERE Month = @Month AND Year = @Year;",
+                    new { Month = month, Year = year });
+            }
+        }
+
         #endregion
     }
 }

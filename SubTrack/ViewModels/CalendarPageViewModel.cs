@@ -44,7 +44,7 @@ namespace SubTrack.ViewModels
         /// <summary>
         /// Obtient ou définit une liste de tous les ExpenseItemsViewModel filtrés selon le mois courant
         /// </summary>
-        public ObservableCollection<Expense> Expenses { get; set; }
+        public ObservableCollection<FinancialOperation> Expenses { get; set; }
 
         /// <summary>
         /// Obtient ou définit la balance actuelle sur le compte en banque
@@ -74,7 +74,7 @@ namespace SubTrack.ViewModels
             this.CurrentBalance = 10000;
 
             this.CalendarViewModel = new CalendarItemViewModel();
-            this.Expenses = new ObservableCollection<Expense>();
+            this.Expenses = new ObservableCollection<FinancialOperation>();
 
             // Initialisation de la commande pour ajouter une dépense
             AddExpenseCommand = new Command(async () => await NavigateToAddExpensePage());
@@ -101,22 +101,25 @@ namespace SubTrack.ViewModels
             var expenses = await Database.Instance.GetAllExpensesAsync();
             foreach (var expense in expenses)
             {
-                if (expense.ExpenseDate.Month == CalendarViewModel.CurrentMonth &&
-                    expense.ExpenseDate.Year == CalendarViewModel.CurrentYear)
+                if (expense.OperationDate.Month == CalendarViewModel.CurrentMonth &&
+                    expense.OperationDate.Year == CalendarViewModel.CurrentYear)
                 {
                     Expenses.Add(expense);
                 }
             }
-            UpdateCurrentBalance();
+            await UpdateCurrentBalance();
             OnPropertyChanged(nameof(Expenses));
         }
 
         /// <summary>
         /// Met à jour la balance courante
         /// </summary>
-        private void UpdateCurrentBalance()
+        private async Task UpdateCurrentBalance()
         {
-            CurrentBalance = Expenses.Sum(e =>  -e.ExpenseAmount);
+            double budget = await Database.Instance.GetMonthlyBudgetAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear) ?? 0; //Budget
+            double totalIncome = await Database.Instance.GetTotalMonthlyIncomeAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear); //Revenus
+            double totalExpense = Expenses.Sum(expense => expense.OperationAmount); //Dépenses
+            this.CurrentBalance = budget + totalIncome - totalExpense;
         }
 
         /// <summary>
@@ -126,12 +129,12 @@ namespace SubTrack.ViewModels
         /// <returns>Une Task</returns>
         private async Task DeleteExpense(int id)
         {
-            var expenseToDelete = Expenses.FirstOrDefault(e => e.ExpenseId == id);
+            var expenseToDelete = Expenses.FirstOrDefault(e => e.OperationId == id);
             if (expenseToDelete != null)
             {
                 Expenses.Remove(expenseToDelete);
                 await Database.Instance.DeleteExpenseByIdAsync(id);
-                UpdateCurrentBalance();
+                await UpdateCurrentBalance();
                 OnPropertyChanged(nameof(Expenses));
             }
         }
@@ -144,29 +147,29 @@ namespace SubTrack.ViewModels
         /// </summary>
         private async Task NavigateToAddExpensePage()
         {
-            var addExpensePage = new AddMonthlyExpensePage();
-            if (addExpensePage.BindingContext is AddMonthlyExpenseViewModel viewModel)
+            var addExpensePage = new AddFinancialOperationPage();
+            if (addExpensePage.BindingContext is AddFinancialOperationViewModel viewModel)
             {
-                viewModel.ExpenseAdded += OnExpenseAdded;
+                viewModel.OperationAdded += OnOperationAdded;
             }
 
             await Shell.Current.Navigation.PushAsync(addExpensePage);
         }
 
         /// <summary>
-        /// Gestion de l'ajout d'une dépense à la liste et mise à jour de l'affichage
+        /// Gestion de l'ajout d'une opération financière à la liste et mise à jour de l'affichage
         /// </summary>
-        private async void OnExpenseAdded(object? sender, Expense newExpense)
+        private async void OnOperationAdded(object? sender, FinancialOperation newExpense)
         {
             if (newExpense != null)
             {
-                // Vérifiez que toutes les propriétés de l'objet Expense sont définies
-                if (string.IsNullOrEmpty(newExpense.ExpenseTitle) ||
-                    newExpense.ExpenseAmount <= 0 ||
-                    newExpense.ExpenseDate == default ||
-                    string.IsNullOrEmpty(newExpense.ExpenseCategory))
+                // Vérifiez que toutes les propriétés de l'objet FinancialOperation sont définies
+                if (string.IsNullOrEmpty(newExpense.OperationTitle) ||
+                    newExpense.OperationAmount <= 0 ||
+                    newExpense.OperationDate == default ||
+                    string.IsNullOrEmpty(newExpense.OperationCategory))
                 {
-                    throw new InvalidOperationException("Tous les champs de la dépense doivent être remplis.");
+                    throw new InvalidOperationException("Tous les champs de l'opération financière doivent être remplis.");
                 }
 
                 await Database.Instance.AddExpenseAsync(newExpense);

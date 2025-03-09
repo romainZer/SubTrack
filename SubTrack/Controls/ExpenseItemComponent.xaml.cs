@@ -9,7 +9,7 @@ public partial class ExpenseItemComponent : ContentView
     public ExpenseItemComponent()
 	{
         InitializeComponent();
-        BindingContext = new Expense();
+        BindingContext = new FinancialOperation();
 	}
     #endregion
 }

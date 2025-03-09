@@ -65,13 +65,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\AddFinancialOperationPage.xaml.cs">
+	    <DependentUpon>AddFinancialOperationPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Controls\CalendarComponent.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\ExpenseItemComponent.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AddMonthlyExpensePage.xaml">
+	  <MauiXaml Update="Views\AddFinancialOperationPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\CalendarPage.xaml">

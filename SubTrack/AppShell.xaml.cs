@@ -7,7 +7,7 @@ namespace SubTrack
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(AddMonthlyExpensePage), typeof(AddMonthlyExpensePage));
+            Routing.RegisterRoute(nameof(AddFinancialOperationPage), typeof(AddFinancialOperationPage));
         }
     }
 }
