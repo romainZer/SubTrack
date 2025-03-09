@@ -17,6 +17,10 @@ namespace SubTrack.ViewModels
     /// </summary>
     public class CalendarPageViewModel : INotifyPropertyChanged
     {
+        #region Attributes
+        private double _currentBalance;
+        #endregion
+
         #region Commands
 
         /// <summary>
@@ -27,7 +31,7 @@ namespace SubTrack.ViewModels
         /// <summary>
         /// Commande lors du swipe d'un ExpenseItem vers la gauche
         /// </summary>
-        public ICommand DeleteExpenseCommand { get;  }
+        public ICommand DeleteExpenseCommand { get; }
         #endregion
 
         #region Properties
@@ -42,6 +46,22 @@ namespace SubTrack.ViewModels
         /// </summary>
         public ObservableCollection<Expense> Expenses { get; set; }
 
+        /// <summary>
+        /// Obtient ou définit la balance actuelle sur le compte en banque
+        /// </summary>
+        public double CurrentBalance
+        {
+            get => _currentBalance;
+            set
+            {
+                if (_currentBalance != value)
+                {
+                    _currentBalance = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Constructors
@@ -51,6 +71,8 @@ namespace SubTrack.ViewModels
         /// </summary>
         public CalendarPageViewModel()
         {
+            this.CurrentBalance = 10000;
+
             this.CalendarViewModel = new CalendarItemViewModel();
             this.Expenses = new ObservableCollection<Expense>();
 
@@ -62,7 +84,7 @@ namespace SubTrack.ViewModels
             CalendarViewModel.PropertyChanged += CalendarViewModel_PropertyChanged;
 
             // Initialisation des dépenses visibles
-            _ =  LoadExpenses();
+            _ = LoadExpenses();
         }
 
         #endregion
@@ -85,10 +107,23 @@ namespace SubTrack.ViewModels
                     Expenses.Add(expense);
                 }
             }
+            UpdateCurrentBalance();
             OnPropertyChanged(nameof(Expenses));
         }
 
+        /// <summary>
+        /// Met à jour la balance courante
+        /// </summary>
+        private void UpdateCurrentBalance()
+        {
+            CurrentBalance = Expenses.Sum(e =>  -e.ExpenseAmount);
+        }
 
+        /// <summary>
+        /// Supprime une dépense par son id
+        /// </summary>
+        /// <param name="id">L'id de la dépense</param>
+        /// <returns>Une Task</returns>
         private async Task DeleteExpense(int id)
         {
             var expenseToDelete = Expenses.FirstOrDefault(e => e.ExpenseId == id);
@@ -96,6 +131,7 @@ namespace SubTrack.ViewModels
             {
                 Expenses.Remove(expenseToDelete);
                 await Database.Instance.DeleteExpenseByIdAsync(id);
+                UpdateCurrentBalance();
                 OnPropertyChanged(nameof(Expenses));
             }
         }
@@ -167,8 +203,6 @@ namespace SubTrack.ViewModels
                 await LoadExpenses();
             }
         }
-       
-
         #endregion
     }
 }
