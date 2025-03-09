@@ -5,7 +5,7 @@
 
     <ContentView.Resources>
         <ResourceDictionary>
-            <converters:ExpenseToTextConverter x:Key="ExpenseToTextConverter" />
+            <converters:OperationToTextConverter x:Key="OperationToTextConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
 
@@ -40,7 +40,7 @@
                                Style="{StaticResource OperationInfosLabelStyle}"
                                FontAttributes="Bold" />
                     </HorizontalStackLayout>
-                    <Label Text="{Binding IsRecurrent, Converter={StaticResource ExpenseToTextConverter}}"
+                    <Label Text="{Binding IsRecurrent, Converter={StaticResource OperationToTextConverter}}"
                            Style="{StaticResource OperationInfosLabelStyle}" />
                 </VerticalStackLayout>
 
