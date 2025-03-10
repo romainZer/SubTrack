@@ -22,26 +22,25 @@
                        Style="{StaticResource OperationIconFrameStyle}">
                     <Image Source="wallet.png"
                            Aspect="AspectFill"
-                           HeightRequest="30"
-                           WidthRequest="30"
+                           HeightRequest="35"
+                           WidthRequest="35"
                            VerticalOptions="Center"
                            HorizontalOptions="Center"/>
                 </Frame>
 
                 <VerticalStackLayout Grid.Column="1"
-                                     VerticalOptions="Center"
-                                     Spacing="1">
+                                     VerticalOptions="Center" >
                     <Label Text="{Binding OperationTitle}"
                            Style="{StaticResource OperationTitleLabelStyle}" />
                     <HorizontalStackLayout>
                         <Label Text="Le "
-                               Style="{StaticResource OperationInfosLabelStyle}" />
+                               Style="{StaticResource OperationDateLabelStyle}" />
                         <Label Text="{Binding OperationDate, StringFormat='{0:dd/MM/yyyy}'}"
-                               Style="{StaticResource OperationInfosLabelStyle}"
+                               Style="{StaticResource OperationDateLabelStyle}"
                                FontAttributes="Bold" />
                     </HorizontalStackLayout>
                     <Label Text="{Binding IsRecurrent, Converter={StaticResource OperationToTextConverter}}"
-                           Style="{StaticResource OperationInfosLabelStyle}" />
+                           Style="{StaticResource OperationRedundencyLabelStyle}" />
                 </VerticalStackLayout>
 
                 <Label Grid.Column="2"
