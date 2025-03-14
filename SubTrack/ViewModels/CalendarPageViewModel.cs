@@ -90,34 +90,39 @@ namespace SubTrack.ViewModels
         #region Methods
 
         /// <summary>
+        /// Met à jour la balance courante
+        /// </summary>
+        private void UpdateCurrentBalance()
+        {
+            double totalIncome = Operations.Where(operation => operation.OperationAmount >= 0).Sum(operation => operation.OperationAmount); // Revenus
+            double totalExpense = Operations.Where(operation => operation.OperationAmount < 0).Sum(operation => operation.OperationAmount); // Dépenses
+            this.CurrentBalance = totalIncome + totalExpense;
+        }
+
+        /// <summary>
         /// Charge les opérations du mois sélectionné
         /// </summary>
         private async Task LoadOperations()
         {
             // Filtrer les opérations en fonction du mois et de l'année courants
             Operations.Clear();
+            // TODO : Modifier la requete pour ne pas TOUT récupérer
             var operations = await Database.Instance.GetAllFinancialOperationsAsync();
             foreach (var operation in operations)
             {
-                if (operation.OperationDate.Month == CalendarViewModel.CurrentMonth &&
-                    operation.OperationDate.Year == CalendarViewModel.CurrentYear)
+                if (operation.IsRecurrent == false
+                    && operation.OperationDate.Month == CalendarViewModel.CurrentMonth
+                    && operation.OperationDate.Year == CalendarViewModel.CurrentYear)
+                {
+                    Operations.Add(operation);
+                }
+                else if (operation.IsRecurrent == true)
                 {
                     Operations.Add(operation);
                 }
             }
-            await UpdateCurrentBalance();
+            UpdateCurrentBalance();
             OnPropertyChanged(nameof(Operations));
-        }
-
-        /// <summary>
-        /// Met à jour la balance courante
-        /// </summary>
-        private async Task UpdateCurrentBalance()
-        {
-            double budget = await Database.Instance.GetMonthlyBudgetAsync(this.CalendarViewModel.CurrentMonth, this.CalendarViewModel.CurrentYear) ?? 0; // Budget
-            double totalIncome = Operations.Where(operation => operation.OperationAmount >= 0).Sum(operation => operation.OperationAmount); // Revenus
-            double totalExpense = Operations.Where(operation => operation.OperationAmount < 0).Sum(operation => operation.OperationAmount); // Dépenses
-            this.CurrentBalance = budget + totalIncome + totalExpense;
         }
 
         /// <summary>
@@ -132,7 +137,7 @@ namespace SubTrack.ViewModels
             {
                 Operations.Remove(operationToDelete);
                 await Database.Instance.DeleteFinancialOperationByIdAsync(id);
-                await UpdateCurrentBalance();
+                UpdateCurrentBalance();
                 OnPropertyChanged(nameof(Operations));
             }
         }

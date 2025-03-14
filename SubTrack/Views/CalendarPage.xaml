@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage x:Name="calendarPage"  
-           xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
-           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
-           xmlns:controls="clr-namespace:SubTrack.Controls"  
-           xmlns:viewModels="clr-namespace:SubTrack.ViewModels"  
-           xmlns:converters="clr-namespace:SubTrack.Converters"  
-           x:Class="SubTrack.Views.CalendarPage">
+<ContentPage x:Name="calendarPage"
+             Padding="0"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SubTrack.Controls"
+             xmlns:viewModels="clr-namespace:SubTrack.ViewModels"
+             xmlns:converters="clr-namespace:SubTrack.Converters"
+             x:Class="SubTrack.Views.CalendarPage">
 
     <ContentPage.BindingContext>
-        <!-- Définir le BindingContext pour la page -->
         <viewModels:CalendarPageViewModel/>
     </ContentPage.BindingContext>
 
@@ -18,64 +18,85 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="80, Auto, Auto, *">
-        <!-- Balance actuelle -->
-        <StackLayout Grid.Row="0" BackgroundColor="{StaticResource Gray950}" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10">
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-                <Label Text="Votre balance en " FontSize="Medium" HorizontalOptions="Center"/>
-                <Label x:Name="CurrentMonthCalendarPage" Text="{Binding CalendarViewModel.CurrentMonth, Converter={StaticResource NumberToMonthConverter}}" FontSize="Medium" HorizontalOptions="Center"/>
+    <AbsoluteLayout>
+
+        <!-- Mise en place d'une grille pour séparer la section fixe et le contenu scrollable -->
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header fixe pour la balance -->
+            <StackLayout Grid.Row="0" BackgroundColor="{StaticResource Gray950}" 
+                         HorizontalOptions="Fill" VerticalOptions="Center" Padding="10">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                    <Label Text="Votre balance en " FontSize="Medium" HorizontalOptions="Center"/>
+                    <Label x:Name="CurrentMonthCalendarPage" 
+                           Text="{Binding CalendarViewModel.CurrentMonth, Converter={StaticResource NumberToMonthConverter}}" 
+                           FontSize="Medium" HorizontalOptions="Center"/>
+                </StackLayout>
+                <Label Text="{Binding CurrentBalance, StringFormat='{0:C}'}" 
+                       FontSize="Large" FontAttributes="Bold" HorizontalOptions="Center"/>
             </StackLayout>
-            <Label Text="{Binding CurrentBalance, StringFormat='{0:C}'}" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Center"/>
-        </StackLayout>
 
-        <!-- Utilisation du contrôle CalendarComponent avec des liaisons de données -->
-        <controls:CalendarComponent  
-          Grid.Row="1"  
-          CurrentYear="{Binding CurrentYear, Mode=TwoWay}"  
-          CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}"  
-          BindingContext="{Binding CalendarViewModel}">
-        </controls:CalendarComponent>
+            <!-- Zone scrollable pour le reste du contenu -->
+            <ScrollView Grid.Row="1" Padding="0,0,0,80">
+                <StackLayout Spacing="10" Padding="10">
+                    <!-- Contrôle CalendarComponent -->
+                    <controls:CalendarComponent  
+                        CurrentYear="{Binding CurrentYear, Mode=TwoWay}"
+                        CurrentMonth="{Binding CurrentMonth, Mode=TwoWay}"
+                        BindingContext="{Binding CalendarViewModel}" />
 
-        <!-- Séparateur -->
-        <BoxView Grid.Row="2" Style="{StaticResource SeparatorStyle}"/>
+                    <!-- Séparateur -->
+                    <BoxView Style="{StaticResource SeparatorStyle}" />
 
-        <!-- Représente l'ensemble des opérations qui tombent mensuellement pour l'utilisateur -->
-        <CollectionView Grid.Row="3"  
-                      ItemsSource="{Binding Operations, Mode=TwoWay}"  
-                      VerticalOptions="Fill">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <SwipeView>
-                        <SwipeView.RightItems>
-                            <SwipeItems Mode="Reveal">
-                                <SwipeItem Text="Supprimer"  
-                                 BackgroundColor="Red"  
-                                 IconImageSource="trash.png"  
-                                 Command="{Binding Source={x:Reference calendarPage}, Path=BindingContext.DeleteOperationCommand}"  
-                                 CommandParameter="{Binding OperationId}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-                        <controls:OperationItemComponent BindingContext="{Binding .}"/>
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                    <!-- Liste des opérations avec SwipeView pour chaque élément -->
+                    <StackLayout BindableLayout.ItemsSource="{Binding Operations}" Spacing="10">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems Mode="Execute">
+                                            <!-- Utilisation de SwipeItemView pour personnaliser l'aspect -->
+                                            <SwipeItemView BackgroundColor="Red" WidthRequest="60">
+                                                <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                                                    <Image Source="trash.png" 
+                                                           WidthRequest="24" 
+                                                           HeightRequest="24"
+                                                           HorizontalOptions="Center" 
+                                                           VerticalOptions="Center" />
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={x:Reference calendarPage}, Path=BindingContext.DeleteOperationCommand}"
+                                                                              CommandParameter="{Binding OperationId}" />
+                                                    </Grid.GestureRecognizers>
+                                                </Grid>
+                                            </SwipeItemView>
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                    <controls:OperationItemComponent BindingContext="{Binding .}" />
+                                </SwipeView>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
+                </StackLayout>
+            </ScrollView>
+        </Grid>
 
-        <!-- Bouton en bas à droite de la page -->
-        <Button  
-          Grid.Row="1" Grid.RowSpan="3"  
-          Text="+"   
-          VerticalOptions="End"  
-          HorizontalOptions="End"  
-          FontSize="Large"  
-          Margin="0,0,20,20"  
-          BackgroundColor="#2596be"  
-          TextColor="White"  
-          WidthRequest="60"  
-          HeightRequest="60"  
-          CornerRadius="10"  
-          Command="{Binding AddOperationCommand}"/>
-    </Grid>
+        <!-- Bouton flottant en bas à droite -->
+        <Button Text="+"  
+                FontSize="Large"
+                WidthRequest="60"
+                HeightRequest="60"
+                CornerRadius="10"
+                BackgroundColor="#2596be"
+                TextColor="White"
+                Command="{Binding AddOperationCommand}"
+                AbsoluteLayout.LayoutBounds="1,1,AutoSize,AutoSize"
+                AbsoluteLayout.LayoutFlags="PositionProportional"
+                Margin="0,0,20,20"/>
+    </AbsoluteLayout>
 </ContentPage>
 
 
