@@ -22,8 +22,8 @@
                        Style="{StaticResource OperationIconFrameStyle}">
                     <Image Source="wallet.png"
                            Aspect="AspectFill"
-                           HeightRequest="30"
-                           WidthRequest="30"
+                           HeightRequest="35"
+                           WidthRequest="35"
                            VerticalOptions="Center"
                            HorizontalOptions="Center"/>
                 </Frame>
