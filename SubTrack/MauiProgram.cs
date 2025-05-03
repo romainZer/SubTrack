@@ -11,9 +11,8 @@ namespace SubTrack
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("Montserrat-Regular.ttf", "MontserratRegular");
-                    fonts.AddFont("Montserrat-SemiBold.ttf", "MontserratSemibold");
-                    fonts.AddFont("Montserrat-Bold.ttf", "MontserratBold");
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
 #if DEBUG

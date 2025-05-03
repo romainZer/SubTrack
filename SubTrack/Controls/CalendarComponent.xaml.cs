@@ -9,34 +9,48 @@ namespace SubTrack.Controls
     /// </summary>
     public partial class CalendarComponent : ContentView
     {
-        #region Static Fields
-        private static readonly string[] WeekDayNames = { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
-        #endregion
-
         #region Bindable Properties
+        /// <summary>
+        /// Propriété bindable pour l'année courante.
+        /// </summary>
         public static readonly BindableProperty CurrentYearProperty =
             BindableProperty.Create(nameof(CurrentYear), typeof(int), typeof(CalendarComponent), DateTime.Now.Year, propertyChanged: OnDateChanged);
 
+        /// <summary>
+        /// Propriété bindable pour le mois courant.
+        /// </summary>
         public static readonly BindableProperty CurrentMonthProperty =
-            BindableProperty.Create(nameof(CurrentMonth), typeof(int), typeof(CalendarComponent), DateTime.Now.Month, propertyChanged: OnMonthChanged);
+            BindableProperty.Create(nameof(CurrentMonth), typeof(int), typeof(CalendarComponent), DateTime.Now.Month, propertyChanged: OnDateChanged);
 
+        /// <summary>
+        /// Propriété bindable pour le jour sélectionné.
+        /// </summary>
         public static readonly BindableProperty SelectedDayProperty =
             BindableProperty.Create(nameof(SelectedDay), typeof(int?), typeof(CalendarComponent), null, propertyChanged: OnSelectedDayChanged);
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Obtient ou définit l'année courante.
+        /// </summary>
         public int CurrentYear
         {
             get => (int)GetValue(CurrentYearProperty);
             set => SetValue(CurrentYearProperty, value);
         }
 
+        /// <summary>
+        /// Obtient ou définit le mois courant.
+        /// </summary>
         public int CurrentMonth
         {
             get => (int)GetValue(CurrentMonthProperty);
             set => SetValue(CurrentMonthProperty, value);
         }
 
+        /// <summary>
+        /// Obtient ou définit le jour sélectionné.
+        /// </summary>
         public int? SelectedDay
         {
             get => (int?)GetValue(SelectedDayProperty);
@@ -44,37 +58,25 @@ namespace SubTrack.Controls
         }
         #endregion
 
-        #region Fields
-        // Pool de boutons pour réutilisation (31 boutons maximum)
-        private readonly List<Button> _dayButtonPool = new List<Button>();
-        #endregion
-
         #region Constructors
+        /// <summary>
+        /// Initialise une nouvelle instance de la classe <see cref="CalendarComponent"/>.
+        /// </summary>
         public CalendarComponent()
         {
             InitializeComponent();
             BindingContext = new CalendarItemViewModel();
-
-            // Initialiser le pool de 31 boutons
-            for (int i = 0; i < 31; i++)
-            {
-                var btn = new Button
-                {
-                    FontSize = 14,
-                    CornerRadius = 6,
-                    Padding = 4,
-                    WidthRequest = 45,
-                    HeightRequest = 45
-                };
-                btn.Clicked += OnDayButtonClicked;
-                _dayButtonPool.Add(btn);
-            }
-
             GenerateCalendar();
         }
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Méthode appelée lorsque la date change.
+        /// </summary>
+        /// <param name="bindable">L'objet bindable.</param>
+        /// <param name="oldValue">L'ancienne valeur.</param>
+        /// <param name="newValue">La nouvelle valeur.</param>
         private static void OnDateChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is CalendarComponent control)
@@ -83,18 +85,12 @@ namespace SubTrack.Controls
             }
         }
 
-        private static void OnMonthChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is CalendarComponent control)
-            {
-                if (!Equals(oldValue, newValue))
-                {
-                    control.SelectedDay = null;
-                }
-                control.GenerateCalendar();
-            }
-        }
-
+        /// <summary>
+        /// Méthode appelée lorsque le jour sélectionné change.
+        /// </summary>
+        /// <param name="bindable">L'objet bindable.</param>
+        /// <param name="oldValue">L'ancienne valeur.</param>
+        /// <param name="newValue">La nouvelle valeur.</param>
         private static void OnSelectedDayChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is CalendarComponent control)
@@ -103,67 +99,67 @@ namespace SubTrack.Controls
             }
         }
 
-        private void OnDayButtonClicked(object? sender, EventArgs e)
-        {
-            if (sender is Button btn && btn.BindingContext is int day)
-            {
-                SelectedDay = SelectedDay == day ? null : day;
-            }
-        }
-
+        /// <summary>
+        /// Génère le calendrier pour le mois et l'année courants.
+        /// </summary>
         private void GenerateCalendar()
         {
-            // Réinitialisation de la grille
             CalendarGrid.Children.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
             CalendarGrid.RowDefinitions.Clear();
 
-            // Création de 7 colonnes
+            // Ajouter 7 colonnes pour les jours de la semaine
             for (int i = 0; i < 7; i++)
             {
                 CalendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
 
-            // Calcul du nombre de lignes (première ligne pour les entêtes)
+            // Ajouter les lignes nécessaires
             int rows = GetNumberOfRowsForMonth(CurrentMonth, CurrentYear);
             for (int i = 0; i < rows; i++)
             {
                 CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             }
 
-            // Ajout des entêtes des jours
+            // En-têtes des jours de la semaine
+            string[] days = { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
             for (int i = 0; i < 7; i++)
             {
                 var dayLabel = new Label
                 {
-                    Text = WeekDayNames[i],
+                    Text = days[i],
                     FontSize = 14,
                     TextColor = Application.Current?.RequestedTheme == AppTheme.Dark ? Colors.White : Color.FromArgb("#666666"),
                     HorizontalOptions = LayoutOptions.Center,
-                    VerticalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
                 };
                 CalendarGrid.Children.Add(dayLabel);
                 Grid.SetColumn(dayLabel, i);
                 Grid.SetRow(dayLabel, 0);
             }
 
-            // Détermination du décalage pour le premier jour du mois
+            // Remplir les jours du mois
             var firstDayOfMonth = new DateTime(CurrentYear, CurrentMonth, 1);
-            int startDayOfWeek = firstDayOfMonth.DayOfWeek == DayOfWeek.Sunday ? 6 : ((int)firstDayOfMonth.DayOfWeek - 1);
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
             int daysInMonth = DateTime.DaysInMonth(CurrentYear, CurrentMonth);
 
-            // Remplissage de la grille avec les boutons déjà créés
             for (int i = 0; i < daysInMonth; i++)
             {
-                var dayButton = _dayButtonPool[i];
-                int dayNumber = i + 1;
+                bool isActualDay = i + 1 == DateTime.Now.Day && CurrentMonth == DateTime.Now.Month && CurrentYear == DateTime.Now.Year;
+                var dayButton = new Button
+                {
+                    Text = (i + 1).ToString(),
+                    FontSize = 14,
+                    BackgroundColor = i + 1 == SelectedDay ? Color.FromArgb("#2596be") : Colors.Transparent,
+                    TextColor = i + 1 == SelectedDay ? Colors.White : (Application.Current.RequestedTheme == AppTheme.Dark ? Colors.White : Color.FromArgb("#333333")), // Texte blanc en mode sombre
+                    CornerRadius = 20,
+                    Padding = 0,
+                    WidthRequest = 35,
+                    HeightRequest = 35
+                };
 
-                dayButton.Text = dayNumber.ToString();
-                dayButton.BindingContext = dayNumber;
-                dayButton.BackgroundColor = dayNumber == SelectedDay ? Color.FromArgb("#2596be") : Color.FromArgb("#6E6E6E");
-                dayButton.TextColor = dayNumber == SelectedDay
-                    ? Colors.White
-                    : (Application.Current?.RequestedTheme == AppTheme.Dark ? Colors.White : Color.FromArgb("#333333"));
+                int dayNumber = i + 1;
+                dayButton.Clicked += (s, e) => SelectedDay = SelectedDay == dayNumber ? null : dayNumber;
 
                 int row = (i + startDayOfWeek) / 7 + 1;
                 int column = (i + startDayOfWeek) % 7;
@@ -176,9 +172,10 @@ namespace SubTrack.Controls
 
         private int GetNumberOfRowsForMonth(int month, int year)
         {
-            int daysInMonth = DateTime.DaysInMonth(year, month);
+            var daysInMonth = DateTime.DaysInMonth(year, month);
             var firstDayOfMonth = new DateTime(year, month, 1);
-            int startDayOfWeek = firstDayOfMonth.DayOfWeek == DayOfWeek.Sunday ? 6 : ((int)firstDayOfMonth.DayOfWeek - 1);
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
+
             return (int)Math.Ceiling((daysInMonth + startDayOfWeek) / 7.0) + 1;
         }
         #endregion

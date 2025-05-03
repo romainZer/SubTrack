@@ -15,18 +15,18 @@ namespace SubTrack.Converters
             {
                 return month switch
                 {
-                    1 => "janvier",
-                    2 => "février",
-                    3 => "mars",
-                    4 => "avril",
-                    5 => "mai",
-                    6 => "juin",
-                    7 => "juillet",
-                    8 => "août",
-                    9 => "septembre",
-                    10 => "octobre",
-                    11 => "novembre",
-                    12 => "décembre",
+                    1 => "Janvier",
+                    2 => "Février",
+                    3 => "Mars",
+                    4 => "Avril",
+                    5 => "Mai",
+                    6 => "Juin",
+                    7 => "Juillet",
+                    8 => "Août",
+                    9 => "Septembre",
+                    10 => "Octobre",
+                    11 => "Novembre",
+                    12 => "Décembre",
                     _ => throw new ArgumentOutOfRangeException(nameof(value), "Le nombre doit être entre 1 et 12")
                 };
             }
