@@ -12,7 +12,7 @@
         <Tab Title="Accueil" Icon="home.png">
             <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
-        <Tab Title="Calendrier" Icon="calendar.png">
+        <Tab Title="Abonnements" Icon="calendar.png">
             <ShellContent ContentTemplate="{DataTemplate views:CalendarPage}" />
         </Tab>
         <Tab Title="Profil" Icon="profile.png">

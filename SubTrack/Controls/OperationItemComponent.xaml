@@ -1,0 +1,53 @@
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:SubTrack.Converters"
+             x:Class="SubTrack.Controls.OperationItemComponent">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:OperationToTextConverter x:Key="OperationToTextConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <Grid>
+        <Frame Style="{StaticResource OperationItemFrameStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <Frame Grid.Column="0"
+                       Style="{StaticResource OperationIconFrameStyle}">
+                    <Image Source="wallet.png"
+                           Aspect="AspectFill"
+                           HeightRequest="35"
+                           WidthRequest="35"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+                </Frame>
+
+                <VerticalStackLayout Grid.Column="1"
+                                     VerticalOptions="Center"
+                                     Spacing="1">
+                    <Label Text="{Binding OperationTitle}"
+                           Style="{StaticResource OperationTitleLabelStyle}" />
+                    <HorizontalStackLayout>
+                        <Label Text="Le "
+                               Style="{StaticResource OperationInfosLabelStyle}" />
+                        <Label Text="{Binding OperationDate, StringFormat='{0:dd/MM/yyyy}'}"
+                               Style="{StaticResource OperationInfosLabelStyle}"
+                               FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding IsRecurrent, Converter={StaticResource OperationToTextConverter}}"
+                           Style="{StaticResource OperationInfosLabelStyle}" />
+                </VerticalStackLayout>
+
+                <Label Grid.Column="2"
+                       Text="{Binding OperationAmount, StringFormat='{0:C}'}"
+                       Style="{StaticResource OperationAmountLabelStyle}" />
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentView>

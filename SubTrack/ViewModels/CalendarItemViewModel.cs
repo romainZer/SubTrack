@@ -8,7 +8,7 @@ namespace SubTrack.ViewModels
     /// <summary>
     /// ViewModel pour le calendrier, gère l'année et le mois courants.
     /// </summary>
-    public class CalendarViewModel : INotifyPropertyChanged
+    public class CalendarItemViewModel : INotifyPropertyChanged
     {
         #region Attributes
         private int _currentYear;
@@ -84,15 +84,15 @@ namespace SubTrack.ViewModels
 
         #region Constructors
         /// <summary>
-        /// Initialise une nouvelle instance de la classe <see cref="CalendarViewModel"/>.
+        /// Initialise une nouvelle instance de la classe <see cref="CalendarItemViewModel"/>.
         /// </summary>
-        public CalendarViewModel()
+        public CalendarItemViewModel()
         {
-            var now = DateTime.Now;
-            CurrentYear = now.Year;
-            CurrentMonth = now.Month;
+            CurrentYear = DateTime.Now.Year;
+            CurrentMonth = DateTime.Now.Month;
+            CurrentMonthName = _months[DateTime.Now.Month - 1];
 
-            // Initialise les commandes
+            // Initialisez éventuellement les commandes du calendrier
             PreviousMonthCommand = new Command(OnPreviousMonth);
             NextMonthCommand = new Command(OnNextMonth);
         }
